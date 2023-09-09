@@ -32,4 +32,4 @@ It is very difficult to give any estimates on time and space complexity, since t
 ## Specific to the course
 - I am in the bachelor's of computer science programme (TKT)
 - Currently I only understand python well enough to give meaningful critique
-- The language for the complete project is English
+- The language for the complete project is Python/English
