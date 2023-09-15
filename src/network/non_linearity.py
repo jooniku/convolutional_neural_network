@@ -18,5 +18,3 @@ class NonLinearity:
         """
 
         return max(0, value)
-
-
