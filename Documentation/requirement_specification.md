@@ -11,7 +11,8 @@ The neural network follows the LeNet-5 architecture and for classification, a so
 
 
 ## Sources
-- The project is based on this paper _J. Li, G. Sun, L. Yi, Q. Cao, F. Liang and Y. Sun, "Handwritten Digit Recognition System Based on Convolutional Neural Network"_, 2020 [IEEE](https://ieeexplore.ieee.org/document/9213619)
+- Main source for this project is the Stanford course [Deep Learning for Computer Vision](http://cs231n.stanford.edu/)
+- The architecture is based on this paper _J. Li, G. Sun, L. Yi, Q. Cao, F. Liang and Y. Sun, "Handwritten Digit Recognition System Based on Convolutional Neural Network"_, 2020 [IEEE](https://ieeexplore.ieee.org/document/9213619)
 - [The Deep Learning textbook](https://www.deeplearningbook.org/) was used as a learning resource 
 
 ## Course management
