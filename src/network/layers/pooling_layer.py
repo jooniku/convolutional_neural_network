@@ -1,5 +1,6 @@
 from neural_network import NeuralNetwork
 
+
 class PoolingLayer(NeuralNetwork):
     """Pooling layer for the neural network. 
     Condences the result from convolution layer and non-linearity function. 

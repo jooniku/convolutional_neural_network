@@ -1,4 +1,4 @@
-from neural_network.neural_network import NeuralNetwork
+from network.neural_network import NeuralNetwork
 
 
 class FullyConnectedLayer(NeuralNetwork):

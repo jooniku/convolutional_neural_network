@@ -1,5 +1,3 @@
-
-
 class NonLinearity:
     """This class has different functions to increase non-linearity in the neural network.
     The function is applied typically after a convolution.
@@ -8,7 +6,7 @@ class NonLinearity:
     def __init__(self) -> None:
         pass
 
-    def relu(value: int):
+    def relu(self, value: int):
         """Rectified linear unit (ReLU) function to increase
         non-linearity.
 
@@ -20,3 +18,5 @@ class NonLinearity:
         """
 
         return max(0, value)
+
+
