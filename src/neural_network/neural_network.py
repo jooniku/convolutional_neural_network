@@ -4,6 +4,7 @@ class NeuralNetwork:
     Hyperparameters are class objects.
     """
     def __init__(self) -> None:
+        # hyperparameter initialization here
         pass
 
 
