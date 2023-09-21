@@ -12,8 +12,8 @@ class PoolingLayer(NeuralNetwork):
     def __init__(self) -> None:
         pass
 
-    def max_pooling():
+    def _max_pooling(kernel_size: int, data):
         pass
 
-    def average_pooling():
+    def _average_pooling():
         pass

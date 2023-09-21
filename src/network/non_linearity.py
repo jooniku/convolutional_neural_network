@@ -6,7 +6,7 @@ class NonLinearity:
     def __init__(self) -> None:
         pass
 
-    def relu(self, value: int):
+    def _relu(self, value: int):
         """Rectified linear unit (ReLU) function to increase
         non-linearity.
 
@@ -18,3 +18,5 @@ class NonLinearity:
         """
 
         return max(0, value)
+
+
