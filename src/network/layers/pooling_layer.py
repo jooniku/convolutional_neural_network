@@ -1,7 +1,6 @@
-from neural_network import NeuralNetwork
+import numpy as np
 
-
-class PoolingLayer(NeuralNetwork):
+class PoolingLayer:
     """Pooling layer for the neural network. 
     Condences the result from convolution layer and non-linearity function. 
 
@@ -9,11 +8,11 @@ class PoolingLayer(NeuralNetwork):
         NeuralNetwork : main neural network
     """
 
-    def __init__(self) -> None:
+    def __init__(self, kernel_size):
+        self.kernel_size = kernel_size
+
+    def _max_pooling(image: np.array):
         pass
 
-    def _max_pooling(kernel_size: int, data):
-        pass
-
-    def _average_pooling():
+    def _average_pooling(image: np.array):
         pass

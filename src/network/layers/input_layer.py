@@ -1,6 +1,5 @@
-from neural_network import NeuralNetwork
 
-class InputLayer(NeuralNetwork):
+class InputLayer:
     """This class takes in data in correct, preprocessed format.
 
     Args:

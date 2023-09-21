@@ -1,7 +1,5 @@
-from network.neural_network import NeuralNetwork
 
-
-class FullyConnectedLayer(NeuralNetwork):
+class FullyConnectedLayer:
     """_summary_
 
     Args:
