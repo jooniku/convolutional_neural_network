@@ -9,4 +9,4 @@
 - Currently the tests cover 100% of functions/methods that are finished or atleast are in working condition
 
 ### Test report
-
+![coverage report](coverage_report.png)
