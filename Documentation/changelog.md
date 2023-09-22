@@ -1,4 +1,8 @@
 ## Week 2:
-- Design structure of project
-- Create necessary classes
-- Build ReLU function within non-linearity class and necessary tests
+- Designed structure of project
+- Created necessary classes
+- Built ReLU function within non-linearity class and necessary tests
+
+## Week 3:
+- Wrote functions for the main class of the network such as calling convolutional function, padding function etc.
+- Wrote tests for functions
