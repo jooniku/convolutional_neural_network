@@ -1,7 +1,6 @@
-from non_linearity import NonLinearity
-from layers.pooling_layer import PoolingLayer
-from layers.convolutional_layer import ConvolutionalLayer
-from mnist_data_processor import training_images, training_labels
+from src.network.non_linearity import NonLinearity
+from src.network.layers.pooling_layer import PoolingLayer
+from src.network.layers.convolutional_layer import ConvolutionalLayer
 import numpy as np
 
 class NeuralNetwork:
@@ -14,9 +13,7 @@ class NeuralNetwork:
         # hyperparameter initialization here
         self.kernel_size = 3 # meaning 3x3
         self.num_of_convolution_layers = 2 
-        self.training_images = training_images
-        self.training_labels = training_labels
-
+        
         self._initialize_custom_functions()
 
     def _initialize_custom_functions(self):
@@ -27,6 +24,7 @@ class NeuralNetwork:
 
         self.non_linearity_function = NonLinearity()._relu
         self.pooling_function = PoolingLayer(self.kernel_size)._max_pooling
+        self._create_convolutional_layers()
         
 
     def _create_convolutional_layers(self):
@@ -91,11 +89,3 @@ class NeuralNetwork:
         """
         pass
 
-
-nn = NeuralNetwork()
-
-img = nn.training_images[2]
-
-nn._create_convolutional_layers()
-
-nn._add_convolution(img)
