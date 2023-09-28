@@ -50,21 +50,28 @@ class ConvolutionalLayer:
                     kernel_x_pos += stride_length
             kernel_y_pos += stride_length
 
+        print(image.shape)
         return image
+    
+
+    
+from matplotlib import pyplot as plt
 
 from mnist_data_processor import training_images
 
-train_img = training_images[2]
+train_img = training_images[7]
 training_image = np.array([[0.5]*28 for i in range(28)])
-bias_vector = np.array([1, 1, 1])
-stride_length = 3
-weight_matrix = np.array([[4, 2, 1], 
-                        [5, 3, 2], 
-                        [3, 5, 6]])
-#conv = ConvolutionalLayer(3)
-#conv._add_2d_convolution(training_image, weight_matrix, bias_vector=bias_vector, stride_length=stride_length)
+bias_vector = np.array([0, 0, 0])
+stride_length = 2
+weight_matrix = np.array([[0, -1, 0], 
+                        [-1, 5, -1], 
+                        [0, -1, 0]])
+conv = ConvolutionalLayer(3)
+conv._add_2d_convolution(training_image, weight_matrix, bias_vector=bias_vector, stride_length=stride_length)
 
 conv = ConvolutionalLayer(3)
-print(conv._add_2d_convolution(train_img, kernel=weight_matrix, bias_vector=bias_vector, stride_length=1))
+data = conv._add_2d_convolution(train_img, kernel=weight_matrix, bias_vector=bias_vector, stride_length=stride_length)
 
 
+plt.imshow(data, interpolation='nearest')
+plt.show()
