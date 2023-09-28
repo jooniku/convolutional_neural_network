@@ -1,4 +1,4 @@
-from network.mnist_data_processor import training_images, training_labels
+from data_processors.mnist_data_processor import training_images, training_labels, test_images, test_labels
 
 class InputLayer:
     """This class takes in data in correct, preprocessed format.
@@ -11,7 +11,10 @@ class InputLayer:
         pass
 
 
-    def _pass_data(self):
+    def _pass_training_data(self):
+        """Feeds the preprocessed data forward to the network.
+
+        Returns:
+            _type_: returns the data
+        """
         return training_images, training_labels
-    
-print(type(training_labels))

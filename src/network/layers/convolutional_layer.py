@@ -2,9 +2,9 @@ import numpy as np
 
 class ConvolutionalLayer:
 
-    def __init__(self, kernel_size, stride_length=1) -> None:
+    def __init__(self, kernel_size) -> None:
         self.kernel_size = kernel_size
-        self.stride_length = stride_length
+        self.stride_length = 2
 
         self.__create_kernel()
 
@@ -27,9 +27,9 @@ class ConvolutionalLayer:
         Returns:
             _type_: padded image
         """
-        required_padding = (self.kernel_size - self.stride_length) // 2
+        needed_padding = (self.kernel_size*10 - image.shape[0]) // 2
 
-        return np.pad(image, pad_width=required_padding)
+        return np.pad(image, pad_width=needed_padding)
     
 
     def _add_2d_convolution(self, raw_image: np.array):
@@ -39,16 +39,15 @@ class ConvolutionalLayer:
         Args:
             image (np.array): image to convolute
         """
-        image = self._add_padding(image=raw_image)
 
-        # reshape makes a copy??
+        image = np.reshape(self._add_padding(raw_image), newshape=(300, 3))
 
-        j = 0
-        while j < 1:
-            image_shape = image[np.ix_([i for i in range(j + self.kernel_size)])]
-            j += self.kernel_size 
+        convoluted_image = np.dot(image, self.weight_matrix) + self.bias_vector
 
-        #print(image_shape)
+        image = np.reshape(convoluted_image, newshape=(30,30))
+
+        print(image)
+
         return image
 
 

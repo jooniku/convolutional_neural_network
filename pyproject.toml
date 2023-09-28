@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "tira-labra"
+name = "digit_recognition_project"
 version = "0.1.0"
-description = ""
+description = "Project for HY course."
 authors = ["Joona Nikula <nikulajoona@gmail.com>"]
 readme = "README.md"
 packages = [{include = "src"}]

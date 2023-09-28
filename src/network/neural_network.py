@@ -1,6 +1,8 @@
-from src.network.non_linearity import NonLinearity
-from src.network.layers.pooling_layer import PoolingLayer
-from src.network.layers.convolutional_layer import ConvolutionalLayer
+from non_linearity import NonLinearity
+from layers.pooling_layer import PoolingLayer
+from layers.convolutional_layer import ConvolutionalLayer
+from layers.input_layer import InputLayer
+
 import numpy as np
 
 class NeuralNetwork:
@@ -22,10 +24,13 @@ class NeuralNetwork:
         Change those here.
         """
 
+        self._get_training_data()
         self.non_linearity_function = NonLinearity()._relu
         self.pooling_function = PoolingLayer(self.kernel_size)._max_pooling
         self._create_convolutional_layers()
         
+    def _get_training_data(self):
+        self.training_images, self.training_labels = InputLayer()._pass_training_data()
 
     def _create_convolutional_layers(self):
         """Creates all of the convolutional layers
@@ -89,3 +94,7 @@ class NeuralNetwork:
         """
         pass
 
+
+
+nn = NeuralNetwork()
+nn._add_convolution(nn.training_images[2])
