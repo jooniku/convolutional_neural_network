@@ -1,4 +1,4 @@
-from data_processors.mnist_data_processor import training_images, training_labels, test_images, test_labels
+from mnist_data_processor import training_images, training_labels, test_images, test_labels
 
 class InputLayer:
     """This class takes in data in correct, preprocessed format.
@@ -18,3 +18,5 @@ class InputLayer:
             _type_: returns the data
         """
         return training_images, training_labels
+    
+print(training_images[2])

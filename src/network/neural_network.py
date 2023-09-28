@@ -96,5 +96,4 @@ class NeuralNetwork:
 
 
 
-nn = NeuralNetwork()
-nn._add_convolution(nn.training_images[2])
+

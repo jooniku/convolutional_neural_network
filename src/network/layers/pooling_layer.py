@@ -13,6 +13,7 @@ class PoolingLayer:
 
     def _max_pooling(image: np.array):
         pass
+        
 
     def _average_pooling(image: np.array):
         pass

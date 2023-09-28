@@ -3,7 +3,7 @@ from src.network.neural_network import NeuralNetwork
 from src.network.layers.pooling_layer import PoolingLayer
 from src.network.layers.convolutional_layer import ConvolutionalLayer
 from src.network.non_linearity import NonLinearity
-from src.data_processors.mnist_data_processor import training_images, training_labels
+from network.layers.mnist_data_processor import training_images, training_labels
 
 class TestNeuralNetwork(unittest.TestCase):
 
@@ -36,6 +36,3 @@ class TestNeuralNetwork(unittest.TestCase):
         self.neuralnetwork._create_convolutional_layers()
 
         self.assertEqual(type(self.neuralnetwork.convolution_layers[0]), type(ConvolutionalLayer(kernel_size=self.kernel_size, stride_length=1)))
-
-
-    
