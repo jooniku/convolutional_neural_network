@@ -7,14 +7,18 @@ import numpy as np
 
 class NeuralNetwork:
     """
-    Class for the neural network. The layers are represented as subclasses. 
-    Hyperparameters are class objects.
+    Class for the neural network. The layers are represented as classes also. 
+    Hyperparameters are class objects. The NeuralNetwork class calls the
+    layer classes and the main operations are performed in the layer classes.
     """
 
     def __init__(self):
         # hyperparameter initialization here
+        # currently only kernel size 3 works
         self.kernel_size = 3 # meaning 3x3
-        self.num_of_convolution_layers = 2 
+        self.stride_length = 1
+        self.num_of_convolution_layers = 1
+        self.learning_step_size = 0.01
         
         self._initialize_custom_functions()
 
@@ -30,29 +34,34 @@ class NeuralNetwork:
         self._create_convolutional_layers()
         
     def _get_training_data(self):
+        """Imports the training data from the input layer
+        so other layers can use it.
+        """
         self.training_images, self.training_labels = InputLayer()._pass_training_data()
+
 
     def _create_convolutional_layers(self):
         """Creates all of the convolutional layers
         and adds them to a list where they can be referenced to.
         """
 
-        self.convolution_layers = []
+        self.convolutional_layers = []
         for i in range(self.num_of_convolution_layers):
-            self.convolution_layers.append(ConvolutionalLayer(self.kernel_size))
+            self.convolutional_layers.append(ConvolutionalLayer(self.kernel_size, self.stride_length))
 
 
-    def _add_convolution(self, image: np.array):
-        """For an image, run a convolution with all
-        conv layers.
+    def _process_image(self, image: np.array):
+        """For an image, add convolution, then non-linearity
+        and finally pooling. After that, feed the image to the
+        next convolutional layer and repeat.
 
         Args:
             image (np.array): _description_
         """
-        cl = ConvolutionalLayer(self.kernel_size)
-        cl._add_2d_convolution(raw_image=image)
+        for conv_layer in self.convolutional_layers:
+            image = self._add_non_linearity(conv_layer._add_2d_convolution(raw_image=image))
 
-
+        return image
 
     def _add_non_linearity(self, image: np.array):
         """This function takes the convoluted data and
@@ -77,7 +86,7 @@ class NeuralNetwork:
         
 
     
-    def _add_pooling(self, data: list):
+    def _add_pooling(self, image: np.array):
         """This function takes the data and using a pooling
         algorithm specified in the initiation method, it 
         adds the pooling.
@@ -92,8 +101,17 @@ class NeuralNetwork:
         """for each e.g. 3x3 section of data, feed it to the pooling algo
         pooling size should be defined here aswell, or mabye in the init method
         """
-        pass
+        return self.pooling_function(image=image)
 
 
+from matplotlib import pyplot as plt
 
+from layers.mnist_data_processor import training_images
 
+train_img = training_images[7]
+
+nn = NeuralNetwork()
+x = nn._process_image(image=train_img)
+
+plt.imshow(x, interpolation='nearest')
+plt.show()

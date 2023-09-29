@@ -60,4 +60,4 @@ training_image = np.array([[1, 2, 3, 2, 5, 2, 6, 7, 4, 5],
                            [2, 4, 6, 7, 2, 4, 5, 3, 6, 2],
                            [99, 6, 8, 5, 2, 2, 5, 7, 8, 9],
                            [2, 4, 6, 7, 2, 4, 5, 3, 6, 2]])
-print(pl._max_pooling(image=training_image))
+#print(pl._max_pooling(image=training_image))
