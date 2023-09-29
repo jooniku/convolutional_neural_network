@@ -1,6 +1,7 @@
 from non_linearity import NonLinearity
 from layers.pooling_layer import PoolingLayer
 from layers.convolutional_layer import ConvolutionalLayer
+from layers.fully_connected_layer import FullyConnectedLayer
 from layers.input_layer import InputLayer
 
 import numpy as np
@@ -19,6 +20,7 @@ class NeuralNetwork:
         self.stride_length = 1
         self.num_of_convolution_layers = 1
         self.learning_step_size = 0.01
+        self.regularization_strength = 0.001
         
         self._initialize_custom_functions()
 
@@ -31,6 +33,7 @@ class NeuralNetwork:
         self._get_training_data()
         self.non_linearity_function = NonLinearity()._relu
         self.pooling_function = PoolingLayer(self.kernel_size)._max_pooling
+        self.fully_connected_layer = FullyConnectedLayer(self.learning_step_size, self.regularization_strength)
         self._create_convolutional_layers()
         
     def _get_training_data(self):
@@ -62,6 +65,24 @@ class NeuralNetwork:
             image = self._add_non_linearity(conv_layer._add_2d_convolution(raw_image=image))
 
         return image
+    
+    def _train_network(self, image: np.array, label: int):
+        # in gradient descent loop
+        # compute class probs
+        # compute loss
+        # compute gradient
+        # backpropagate
+        for conv_layer in self.convolutional_layers:
+            convoluted_image = self._add_non_linearity(conv_layer._add_2d_convolution(raw_image=image))
+
+        loss = self.fully_connected_layer._compute_loss(image=convoluted_image, kernel=conv_layer.kernel, label=label)
+        gradients = self.fully_connected_layer._compute_gradient(image=convoluted_image, label=label)
+
+        for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
+            pass
+            #self.convolutional_layers[conv_layer]._update_parameters(gradients, self.regularization_strength, self.learning_step_size)
+
+
 
     def _add_non_linearity(self, image: np.array):
         """This function takes the convoluted data and
@@ -102,16 +123,19 @@ class NeuralNetwork:
         pooling size should be defined here aswell, or mabye in the init method
         """
         return self.pooling_function(image=image)
+    
+    def _add_backpropagation(self):
+        pass
 
 
 from matplotlib import pyplot as plt
 
-from layers.mnist_data_processor import training_images
+from layers.mnist_data_processor import training_images, training_labels
 
-train_img = training_images[7]
-
+i = 2
 nn = NeuralNetwork()
-x = nn._process_image(image=train_img)
+x = nn._process_image(image=training_images[i])
+print(x)
 
 plt.imshow(x, interpolation='nearest')
 plt.show()
