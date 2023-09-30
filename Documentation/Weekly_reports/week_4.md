@@ -1,0 +1,5 @@
+## Week 4 report
+
+This week was mainly spent with the convolution function. Currently the forward feeding part of the network is looking good. The convolution works properly and so does the pooling function. Started to look into gradient descent, loss functions etc. and generally backpropagation. Had major problems with calculating gradients from softmax probabilities of the range of numbers. I expect that to be figured next week. This all took roughly 25 hours of work. Did not have time to write tests, since I got a bit carried away with the problems. Also had some importing issues with tests, but did not have time to look into those too much.
+
+Next week I will catch up with testing and will write tests for the convolution, e.g. comparing hand-calculated convolution and the function (which I have already done, but it is not within the tests). Same for pooling functions. I will also start writing the backpropagation if I have time, or at least some of the processes in it.
