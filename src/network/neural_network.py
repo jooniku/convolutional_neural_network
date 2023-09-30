@@ -20,7 +20,7 @@ class NeuralNetwork:
         self.kernel_size = 3 # meaning 3x3
         self.stride_length = 1
         self.num_of_convolution_layers = 2
-        self.learning_step_size = 0.1
+        self.learning_step_size = 0.01
         self.regularization_strength = 0.001
         self.num_of_classes = 10 # as in 0...9
         
@@ -71,8 +71,10 @@ class NeuralNetwork:
     def _train_network(self):
         """This function is called to train the network.
         """
-        for epoch in range(1):
-            for data in range(1):
+        for epoch in range(10):
+            conv_images = []
+            labels = []
+            for data in range(196):
                 image = self.training_images[data]
                 label = self.training_labels[data]
 
@@ -80,20 +82,20 @@ class NeuralNetwork:
                    image = self.pooling_layer(self._add_non_linearity(conv_layer._add_2d_convolution(image=self._add_padding(image))))
 
                 image = self.fully_connected_layer._process(image=image)
+                conv_images.append(image)
+                labels.append(label)
+            
+            loss = self.fully_connected_layer._compute_loss(images=conv_images, labels=labels)
+            gradients = self.fully_connected_layer._compute_gradient(images=conv_images, labels=labels)
 
-                loss = self.fully_connected_layer._compute_loss(image=image, kernel=conv_layer.kernel, label=label)
-                gradients = self.fully_connected_layer._compute_gradient(image=image, label=label)
+            gradient_weigth = self.fully_connected_layer._update_parameters(gradient_score=gradients)
 
-                self.fully_connected_layer._update_parameters(gradient_score=gradients)
 
-                for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
-                    self.convolutional_layers[conv_layer]._update_parameters(loss, self.regularization_strength, self.learning_step_size)
-                
-                #plt.imshow(image, interpolation='nearest')
-                #plt.show()
-                
-            if epoch % 10 == 0:
-                print(loss)
+
+            for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
+                self.convolutional_layers[conv_layer]._update_parameters(loss, self.regularization_strength, self.learning_step_size)
+
+            print(loss)            
 
     def _add_padding(self, image: np.array):
         """Adds zero-padding for the image to make sure the

@@ -6,7 +6,7 @@ class SoftMaxClassifier:
         self.learning_step_size = learning_step_size
         self.regularization_strength = reg_strength
 
-    def _compute_probabilities(self, image:np.array):
+    def _compute_probabilities(self, images):
         """_summary_
 
         Args:
@@ -15,11 +15,13 @@ class SoftMaxClassifier:
         Returns:
             _type_: _description_
         """
-        image -= np.max(image)
-        exp_scores = np.exp(image)
+        probabilities = []
+        for image in images:
+            image -= np.max(image)
+            exp_scores = np.exp(image)
+            probabilities.append(list(exp_scores / np.sum(exp_scores, axis=0, keepdims=True)))
 
-        probabilities = exp_scores / np.sum(exp_scores, axis=0, keepdims=True)
-        return probabilities
+        return np.array(probabilities)
 
     def _create_one_hot_label(self, label):
         """_summary_
@@ -36,7 +38,7 @@ class SoftMaxClassifier:
                 labels[i] = 1
         return labels
 
-    def _cross_entropy_loss(self, image, label):
+    def _cross_entropy_loss(self, images, labels):
         """Calculates the cross-entropy loss of the network.
 
         Args:
@@ -46,20 +48,15 @@ class SoftMaxClassifier:
         Returns:
             _type_: _description_
         """
-        labels = self._create_one_hot_label(label)
+        probabilities = self._compute_probabilities(images)
 
-        probabilities = self._compute_probabilities(image)
+        prob_correct_class = -np.log(probabilities[range(len(images)),labels])
 
-        cross_entropy_loss = -np.sum(labels * np.log(probabilities))
+        average_data_loss = np.sum(prob_correct_class) / len(labels)
 
-        prob_correct_class = probabilities[np.argmax(labels)]
+        return average_data_loss
 
-        if prob_correct_class > 0.5:
-            print("Guessed correctly!")
-
-        return cross_entropy_loss
-
-    def _compute_gradient(self, image, label):
+    def _compute_gradient(self, images, labels):
         """
 
         Args:
@@ -69,9 +66,12 @@ class SoftMaxClassifier:
         Returns:
             _type_: _description_
         """
-        probalilities = self._compute_probabilities(image)
-        labels = self._create_one_hot_label(label)
+        avr = self._cross_entropy_loss(images, labels)
+        gradient = self._compute_probabilities(images)
 
-        gradient = probalilities - labels
-        print(gradient)
+        gradient[range(len(images)), labels] -= avr
+
+        gradient /= len(images)
+
         return gradient
+

@@ -26,10 +26,11 @@ class FullyConnectedLayer:
             _type_: _description_
         """
         flattened_image = image.flatten()
+        self.last_input = flattened_image
 
-        return np.dot(self.weight_matrix, flattened_image)
+        return np.dot(self.weight_matrix, flattened_image.T)
 
-    def _compute_loss(self, image, kernel, label):
+    def _compute_loss(self, images, labels):
         """_summary_
 
         Args:
@@ -40,9 +41,9 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._cross_entropy_loss(image, label)
+        return self.classifier_function._cross_entropy_loss(images, labels)
 
-    def _compute_gradient(self, image, label):
+    def _compute_gradient(self, images, labels):
         """_summary_
 
         Args:
@@ -52,7 +53,7 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_gradient(image, label=label)
+        return self.classifier_function._compute_gradient(images, labels)
     
     def _update_parameters(self, gradient_score):
         """_summary_
@@ -63,8 +64,11 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        gradient_weight = np.dot(self.weight_matrix.T, gradient_score)
+        #gradient_weight = np.dot(self.last_input, gradient_score)
 
-        self.weight_matrix += -self.step_size*gradient_weight
-        return gradient_weight
+
+        #this is wrong
+        self.weight_matrix += -self.step_size * gradient_score.T
+        
+        
 

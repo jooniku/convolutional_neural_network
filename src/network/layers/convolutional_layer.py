@@ -66,11 +66,11 @@ class ConvolutionalLayer:
             reg_strength (float): _description_
             step_size (float): _description_
         """
-        d_kernel = np.dot(self.kernel.T, loss_score)
+        #d_kernel = np.dot(self.kernel.T, loss_score)
 
         #d_kernel += self.kernel*reg_strength
 
-        self.kernel += -step_size*d_kernel
+        #self.kernel += -step_size*d_kernel
         #self.bias_vector += -step_size*d_bias_vector
         #print(((self.bias_vector - ss) / ss)*100)
 
