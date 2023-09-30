@@ -15,31 +15,20 @@ class ConvolutionalLayer:
         The weights are initialized to small random numbers.
         """
         # create kernel using numbers from numpys samples of "standard normal" distribution
-        self.kernel = 0.01 * np.random.randn(self.kernel_size, self.kernel_size) * np.sqrt(2.0 / self.kernel_size)
+        self.kernel = 0.01 *np.random.randn(self.kernel_size, self.kernel_size) * np.sqrt(2.0 / self.kernel_size)
         #self.kernel = np.array([[-1, -1, 0],
         #                        [-1, -1, 1],
         #                        [1, -1, -1]])
-        self.kernel = np.array([[-1, -1, -1],
-                               [-1, 8, -1],
-                               [-1, -1, -1]])
-        self.bias_vector = 0.01
+        #self.kernel = np.array([[-1, -1, -1],
+        #                       [-1, 8, -1],
+        #                       [-1, -1, -1]])
+        self.bias_vector = [0.01]*((28-self.stride_length + 2*2)//2+1)
+
         #self.bias_vector = 1
 
-    def _add_padding(self, image: np.array):
-        """Adds zero-padding for the image to make sure the
-        convolutions work.
 
-        Args:
-            image (np.array): array representation of image
 
-        Returns:
-            _type_: padded image
-        """
-        needed_padding = (self.kernel_size - self.stride_length) // 2 + 1
-
-        return np.pad(image, pad_width=needed_padding)
-
-    def _add_2d_convolution(self, raw_image: np.array):
+    def _add_2d_convolution(self, image: np.array):
         """This is the main convolution function. Using
         this class' kernel, slide the kernel across the
         image and add the bias vector. At each position, 
@@ -49,7 +38,6 @@ class ConvolutionalLayer:
         Args:
             image (np.array): image to convolute
         """
-        image = self._add_padding(raw_image)
         self.received_input = image
         output_image = []
 
@@ -62,7 +50,7 @@ class ConvolutionalLayer:
                 for row in range(self.kernel_size):
                     for column in range(self.kernel_size):
                         local_area_sum += image[kernel_y_pos + row][kernel_x_pos + column]*self.kernel[row][column]
-                output_image_sublist.append(local_area_sum + self.bias_vector)
+                output_image_sublist.append(local_area_sum)
                 kernel_x_pos += self.stride_length
             output_image.append(output_image_sublist)
             kernel_y_pos += self.stride_length
@@ -70,17 +58,22 @@ class ConvolutionalLayer:
         return np.array(output_image)
     
 
-    def _update_parameters(self, gradient_scores: np.array, reg_strength: float, step_size: float):
-        d_kernel = np.dot(self.received_input.T, gradient_scores)
-        d_bias_vector = np.sum(gradient_scores, axis=0, keepdims=True)
+    def _update_parameters(self, loss_score, reg_strength: float, step_size: float):
+        """Update the kernel and bias vector parameters in backpropagation.
 
-        d_kernel += self.kernel*reg_strength
+        Args:
+            gradient_scores (np.array): _description_
+            reg_strength (float): _description_
+            step_size (float): _description_
+        """
+        d_kernel = np.dot(self.kernel.T, loss_score)
+
+        #d_kernel += self.kernel*reg_strength
 
         self.kernel += -step_size*d_kernel
+        #self.bias_vector += -step_size*d_bias_vector
+        #print(((self.bias_vector - ss) / ss)*100)
 
-        self.bias_vector += -step_size*d_bias_vector
-
-        print(self.bias_vector)
 
 
 
@@ -90,7 +83,7 @@ img = np.array([[0, 0, 0, 2, 1],
                 [0, 2, 2, 0, 0],
                 [0, 2, 2, 1, 0]])
 
-print(ConvolutionalLayer(kernel_size=3, stride_length=2)._add_2d_convolution(img))
+#print(ConvolutionalLayer(kernel_size=3, stride_length=2)._add_2d_convolution(img))
 
 
 

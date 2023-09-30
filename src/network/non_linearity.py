@@ -1,3 +1,5 @@
+import numpy as np
+
 class NonLinearity:
     """This class has different functions to increase non-linearity in the neural network.
     The function is applied typically after a convolution.
@@ -6,7 +8,7 @@ class NonLinearity:
     def __init__(self) -> None:
         pass
 
-    def _relu(self, value: float):
+    def _relu(self, image: np.array):
         """Rectified linear unit (ReLU) function to increase
         non-linearity.
 
@@ -14,8 +16,16 @@ class NonLinearity:
             value (int): value of position
 
         Returns:
-            int : value, if it's greater than 0, else 0
+            float : value, if it's greater than 0, else 0
         """
-        return max(0, value)
+        #print(image.shape)
+        for row in range(len(image)):
+            #print(image[row])
+            for col in range(len(image)):
+                image[row][col] = max(0.0, image[row][col])
+        #print()
+        #print()
+        
+        return np.array(image)
 
 

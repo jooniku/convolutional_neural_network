@@ -40,7 +40,7 @@ class PoolingLayer:
 
             kernel_y_pos += self.stride_length
             pooled_image.append(pooled_img_sublist)
-        
+
         return np.array(pooled_image)
 
     def _average_pooling(image: np.array):

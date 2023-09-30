@@ -7,30 +7,71 @@ class SoftMaxClassifier:
         self.regularization_strength = reg_strength
 
     def _compute_probabilities(self, image:np.array):
+        """_summary_
+
+        Args:
+            image (np.array): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        image -= np.max(image)
         exp_scores = np.exp(image)
 
-        probabilities = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-
+        probabilities = exp_scores / np.sum(exp_scores, axis=0, keepdims=True)
         return probabilities
 
-    def _compute_loss(self, image: np.array, kernel :np.array, label: int):
-        probabilities = self._compute_probabilities(image=image)
+    def _create_one_hot_label(self, label):
+        """_summary_
 
-        prob_correct_class = -np.log(probabilities[range(10), label])
+        Args:
+            label (_type_): _description_
 
-        data_loss = np.sum(prob_correct_class) / 10
+        Returns:
+            _type_: _description_
+        """
+        labels = [0]*10
+        for i in range(len(labels)):
+            if i == label:
+                labels[i] = 1
+        return labels
 
-        regularization_loss = 0.5*self.regularization_strength*np.sum(kernel*kernel) + 0.5*self.regularization_strength*np.sum(image*image)
+    def _cross_entropy_loss(self, image, label):
+        """Calculates the cross-entropy loss of the network.
 
+        Args:
+            image (_type_): _description_
+            label (_type_): _description_
 
-        return data_loss + regularization_loss
+        Returns:
+            _type_: _description_
+        """
+        labels = self._create_one_hot_label(label)
+
+        probabilities = self._compute_probabilities(image)
+
+        cross_entropy_loss = -np.sum(labels * np.log(probabilities))
+
+        prob_correct_class = probabilities[np.argmax(labels)]
+
+        if prob_correct_class > 0.5:
+            print("Guessed correctly!")
+
+        return cross_entropy_loss
 
     def _compute_gradient(self, image, label):
-        probabilities = self._compute_probabilities(image=image)
+        """
 
-        probabilities[range(10), label] -= 1
+        Args:
+            image (_type_): _description_
+            label (_type_): _description_
 
-        gradients = probabilities / 10
+        Returns:
+            _type_: _description_
+        """
+        probalilities = self._compute_probabilities(image)
+        labels = self._create_one_hot_label(label)
 
-        return gradients
-
+        gradient = probalilities - labels
+        print(gradient)
+        return gradient

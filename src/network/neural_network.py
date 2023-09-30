@@ -3,6 +3,7 @@ from layers.pooling_layer import PoolingLayer
 from layers.convolutional_layer import ConvolutionalLayer
 from layers.fully_connected_layer import FullyConnectedLayer
 from layers.input_layer import InputLayer
+from matplotlib import pyplot as plt
 
 import numpy as np
 
@@ -18,9 +19,10 @@ class NeuralNetwork:
         # currently only kernel size 3 works
         self.kernel_size = 3 # meaning 3x3
         self.stride_length = 1
-        self.num_of_convolution_layers = 1
-        self.learning_step_size = 0.01
+        self.num_of_convolution_layers = 2
+        self.learning_step_size = 0.1
         self.regularization_strength = 0.001
+        self.num_of_classes = 10 # as in 0...9
         
         self._initialize_custom_functions()
 
@@ -32,8 +34,8 @@ class NeuralNetwork:
 
         self._get_training_data()
         self.non_linearity_function = NonLinearity()._relu
-        self.pooling_function = PoolingLayer(self.kernel_size)._max_pooling
-        self.fully_connected_layer = FullyConnectedLayer(self.learning_step_size, self.regularization_strength)
+        self.pooling_layer = PoolingLayer(self.kernel_size)._max_pooling
+        self.fully_connected_layer = FullyConnectedLayer(self.num_of_classes, self.learning_step_size, self.regularization_strength)
         self._create_convolutional_layers()
         
     def _get_training_data(self):
@@ -66,22 +68,46 @@ class NeuralNetwork:
 
         return image
     
-    def _train_network(self, image: np.array, label: int):
-        # in gradient descent loop
-        # compute class probs
-        # compute loss
-        # compute gradient
-        # backpropagate
-        for conv_layer in self.convolutional_layers:
-            convoluted_image = self._add_non_linearity(conv_layer._add_2d_convolution(raw_image=image))
+    def _train_network(self):
+        """This function is called to train the network.
+        """
+        for epoch in range(1):
+            for data in range(1):
+                image = self.training_images[data]
+                label = self.training_labels[data]
 
-        loss = self.fully_connected_layer._compute_loss(image=convoluted_image, kernel=conv_layer.kernel, label=label)
-        gradients = self.fully_connected_layer._compute_gradient(image=convoluted_image, label=label)
+                for conv_layer in self.convolutional_layers:
+                   image = self.pooling_layer(self._add_non_linearity(conv_layer._add_2d_convolution(image=self._add_padding(image))))
 
-        for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
-            pass
-            #self.convolutional_layers[conv_layer]._update_parameters(gradients, self.regularization_strength, self.learning_step_size)
+                image = self.fully_connected_layer._process(image=image)
 
+                loss = self.fully_connected_layer._compute_loss(image=image, kernel=conv_layer.kernel, label=label)
+                gradients = self.fully_connected_layer._compute_gradient(image=image, label=label)
+
+                self.fully_connected_layer._update_parameters(gradient_score=gradients)
+
+                for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
+                    self.convolutional_layers[conv_layer]._update_parameters(loss, self.regularization_strength, self.learning_step_size)
+                
+                #plt.imshow(image, interpolation='nearest')
+                #plt.show()
+                
+            if epoch % 10 == 0:
+                print(loss)
+
+    def _add_padding(self, image: np.array):
+        """Adds zero-padding for the image to make sure the
+        operations work.
+
+        Args:
+            image (np.array): array representation of image
+
+        Returns:
+            _type_: padded image
+        """
+        needed_padding = (32 - len(image)) // 2
+
+        return np.pad(image, pad_width=needed_padding)
 
 
     def _add_non_linearity(self, image: np.array):
@@ -99,43 +125,13 @@ class NeuralNetwork:
         """for each number in data call the non-linearity function
         and then return the modified data
         """
-        for row in range(len(image)):
-            for column in range(len(image[0])):
-                image[row][column] = self.non_linearity_function(image[row][column])
-        
-        return image
+        return self.non_linearity_function(image)
         
 
-    
-    def _add_pooling(self, image: np.array):
-        """This function takes the data and using a pooling
-        algorithm specified in the initiation method, it 
-        adds the pooling.
-
-        Args:
-            data (_type_): _description_
-        
-        Returns:
-            _type_: Returns the pooled data.
-        """
-
-        """for each e.g. 3x3 section of data, feed it to the pooling algo
-        pooling size should be defined here aswell, or mabye in the init method
-        """
-        return self.pooling_function(image=image)
-    
     def _add_backpropagation(self):
         pass
 
 
-from matplotlib import pyplot as plt
-
-from layers.mnist_data_processor import training_images, training_labels
-
-i = 2
 nn = NeuralNetwork()
-x = nn._process_image(image=training_images[i])
-print(x)
 
-plt.imshow(x, interpolation='nearest')
-plt.show()
+nn._train_network()
