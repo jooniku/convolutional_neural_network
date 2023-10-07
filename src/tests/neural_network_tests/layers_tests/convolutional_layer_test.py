@@ -1,25 +1,36 @@
 import unittest
+import numpy as np
 from src.network.layers.convolutional_layer import ConvolutionalLayer
-from network.layers.mnist_data_processor import training_images, training_labels
+from mnist_data_processor import training_images, training_labels
 
 class TestConvolutionalLayer(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.conv_layer = ConvolutionalLayer()
         self.training_image = training_images[2]
         self.training_label = training_labels[2]
 
     def test_convolution_works_correctly(self):
-        training_image = [[0.5]*28 for i in range(28)]
-        bias_vector = [1, 1, 1]
-        stride_length = 3
-        weight_matrix = [[4, 2, 1], 
-                         [5, 3, 2], 
-                         [3, 5, 6]]
-        img = self.conv_layer._add_2d_convolution(training_image, weight_matrix, bias_vector=bias_vector, stride_length=stride_length)
-        print(img)
+       #using hand-calculated convolution
+       conv_layer = ConvolutionalLayer(num_of_filters=1, filter_size=3, stride_length=2)
+       filter = np.array([[1, 1, 1],
+                        [1, 0, 0],
+                        [0, -1, -1]])
+       test_img = np.array([[0, 0, 0, 0, 0, 0, 0],
+                            [0, 0, 2, 0, 0, 2, 0],
+                            [0, 0, 1, 0, 1, 2, 0],
+                            [0, 1, 0, 2, 0, 1, 0],
+                            [0, 1, 2, 1, 0, 2, 0],
+                            [0, 2, 1, 0, 1, 2, 0],
+                            [0, 0, 0, 0, 0, 0, 0]])
+       
+       correct_result = np.array([[-1, 1, -2],
+                                  [-2, 1, 1],
+                                  [3, 4, 3]])
+       
+       convoluted_img = conv_layer._convolute2d(test_img, filter)
+       
+       self.assertEqual(np.sum(convoluted_img), np.sum(correct_result))
 
-TestConvolutionalLayer().test_convolution_works_correctly()
 
 
 """

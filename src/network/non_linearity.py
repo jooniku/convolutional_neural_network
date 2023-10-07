@@ -18,14 +18,10 @@ class NonLinearity:
         Returns:
             float : value, if it's greater than 0, else 0
         """
-        #print(image.shape)
         for row in range(len(image)):
-            #print(image[row])
-            for col in range(len(image)):
+            for col in range(len(image[0])):
                 image[row][col] = max(0.0, image[row][col])
-        #print()
-        #print()
-        
-        return np.array(image)
+
+        return image
 
 

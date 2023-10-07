@@ -1,8 +1,19 @@
-from app import App
-
+from tkinter import Tk
+from app.ui import UI
 
 def main():
-    application = App()
+    '''Main window for application.
+    This function is called with poetry command.
+    '''
+
+    window = Tk()
+    window.title('Convolutional Neural Network App')
+
+    ui_view = UI(window)
+    ui_view.start()
+
+    window.mainloop()
 
 
-main()
+if __name__ == '__main__':
+    main()

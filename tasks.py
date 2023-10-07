@@ -8,6 +8,14 @@ def start(ctx):
     ctx.run('python3 src/main.py', pty=True)
 
 @task
+def train_network(ctx):
+    ctx.run('python3 src/network_train.py', pty=True)
+
+@task
+def test_network(ctx):
+    ctx.run('python3 src/network_testing.py', pty=True)
+
+@task
 def test(ctx):
     ctx.run('pytest src', pty=True)
 
