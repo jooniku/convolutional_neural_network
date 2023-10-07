@@ -3,9 +3,6 @@ import numpy as np
 class PoolingLayer:
     """Pooling layer for the neural network. 
     Condences the result from convolution layer and non-linearity function. 
-
-    Args:
-        NeuralNetwork : main neural network
     """
 
     def __init__(self, kernel_size):
@@ -45,6 +42,17 @@ class PoolingLayer:
         return layer_activation
 
     def _average_pooling(self, image: np.array):
+        """Computes the average pooling for a given input.
+        For each local area, which is determined by the
+        pooling kernel, takes the average of values and
+        represents the local area with that value.
+
+        Args:
+            image (np.array): _description_
+
+        Returns:
+            _type_: _description_
+        """
         pooled_image = []
         kernel_y_pos = 0
         while kernel_y_pos <= (len(image) - self.pooling_kernel_size):
@@ -69,6 +77,18 @@ class PoolingLayer:
 
 
     def _backpropagation_average_pooling(self, gradient_input, output_shape):
+        """Backpropagation through the average pooling
+        function. Essentially a de-pooling function.
+        Gives the average pooling value for the whole 
+        local are from which it is computed from.
+
+        Args:
+            gradient_input (_type_): _description_
+            output_shape (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         output_height, output_width = gradient_input.shape
         gradients = np.zeros(output_shape)
 
@@ -83,17 +103,3 @@ class PoolingLayer:
             
         return gradients
 
-pl = PoolingLayer(2)
-
-#training_image = np.array([[0.5]*10 for i in range(10)])
-training_image = np.array([[1, 2, 3, 2, 5, 2, 6, 7, 4, 5],
-                           [2, 4, 6, 7, 2, 4, 5, 3, 6, 2],
-                           [4, 6, 8, 5, 2, 2, 5, 7, 8, 9],
-                           [1, 10, 3, 7, 5, 2, 1, 7, 4, 5],
-                           [2, 4, 6, 7, 2, 4, 5, 3, 6, 2],
-                           [4, 6, 8, 5, 2, 2, 5, 7, 8, 9],
-                           [1, 2, 3, 2, 12, 2, 22, 7, 4, 5],
-                           [2, 4, 6, 7, 2, 4, 5, 3, 6, 2],
-                           [99, 6, 8, 5, 2, 2, 5, 7, 8, 9],
-                           [2, 4, 6, 7, 2, 4, 5, 3, 6, 2]])
-#print(pl._max_pooling(image=training_image))

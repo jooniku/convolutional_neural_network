@@ -1,8 +1,8 @@
-from src.network.non_linearity import NonLinearity
-from src.network.layers.pooling_layer import PoolingLayer
-from src.network.layers.convolutional_layer import ConvolutionalLayer
-from src.network.layers.fully_connected_layer import FullyConnectedLayer
-from src.network.layers.input_layer import InputLayer
+from network.non_linearity import NonLinearity
+from network.layers.pooling_layer import PoolingLayer
+from network.layers.convolutional_layer import ConvolutionalLayer
+from network.layers.fully_connected_layer import FullyConnectedLayer
+from network.layers.input_layer import InputLayer
 import random
 import numpy as np
 
@@ -13,8 +13,8 @@ class NeuralNetwork:
     layer classes and the main operations are performed in the layer classes.
     """
 
-    def __init__(self, kernel_size=3,
-                 stride_length=1,
+    def __init__(self, filter_size=3, # Note: (filter_size - stride_length) // 2 must return an integer
+                 stride_length=1,     # Note: (W - F + 2P)//S + 1 also must return integer
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=3,
                  learning_step_size=0.01,
@@ -24,7 +24,7 @@ class NeuralNetwork:
                  num_of_classes=10):
         
         # hyperparameter initialization here
-        self.kernel_size = kernel_size
+        self.filter_size = filter_size
         self.stride_length = stride_length
         self.num_of_convolution_layers = num_of_convolutional_layers
         self.num_of_filters_in_conv_layer = num_of_filters_in_conv_layer
@@ -44,7 +44,7 @@ class NeuralNetwork:
 
         self._get_training_data()
         self.non_linearity_function = NonLinearity()._relu
-        self.pooling_layer = PoolingLayer(self.kernel_size)
+        self.pooling_layer = PoolingLayer(self.filter_size)
         self.pooling_function = self.pooling_layer._average_pooling
         self.fully_connected_layer = FullyConnectedLayer(self.num_of_classes, self.learning_step_size, self.regularization_strength)
         self._create_convolutional_layers()
@@ -66,7 +66,7 @@ class NeuralNetwork:
 
         self.convolutional_layers = []
         for i in range(self.num_of_convolution_layers):
-            self.convolutional_layers.append(ConvolutionalLayer(self.kernel_size, self.stride_length, self.num_of_filters_in_conv_layer))
+            self.convolutional_layers.append(ConvolutionalLayer(self.filter_size, self.stride_length, self.num_of_filters_in_conv_layer))
 
 
     def _predict(self, image: np.array):
@@ -148,8 +148,3 @@ class NeuralNetwork:
         """
         return self.non_linearity_function(image)
         
-
-    def _add_backpropagation(self):
-        pass
-
-

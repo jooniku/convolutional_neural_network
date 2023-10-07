@@ -2,10 +2,8 @@ from src.network.layers.softmax import SoftMaxClassifier
 import numpy as np
 
 class FullyConnectedLayer:
-    """_summary_
-
-    Args:
-        NeuralNetwork (_type_): _description_
+    """Fully connected layer.
+    The final layer(s) in the network.
     """
 
     def __init__(self, num_of_classes, learning_step_size, reg_strength) -> None:
@@ -16,13 +14,14 @@ class FullyConnectedLayer:
 
 
     def _process(self, image):
-        """_summary_
+        """This is a function to process the input image
+        through the layer.
 
         Args:
-            image (_type_): _description_
+            image (_type_): input image
 
         Returns:
-            _type_: _description_
+            _type_: dot product of input image and weights
         """
 
         # initialize weight matrix here to get correct dimensions
@@ -74,13 +73,14 @@ class FullyConnectedLayer:
         return self.classifier_function._compute_gradient(image, label)
     
     def _update_parameters(self, gradient_score):
-        """_summary_
+        """Updates the weights in the weight matrix
+        with the given gradients. 
 
         Args:
-            gradient_score (_type_): _description_
+            gradient_score (_type_): Gradient score from the previous layer
 
         Returns:
-            _type_: _description_
+            _type_: Gradients for the next layer
         """
         gradient_score = gradient_score.reshape(1, -1)
         self.received_input = self.received_input.reshape(-1, 1)
@@ -98,7 +98,29 @@ class FullyConnectedLayer:
         
 
     def _compute_average_loss(self, images, labels):
+        """Calls the classifier function to compute
+        average loss, which is given (the function)
+        as a parameter in the initialization.
+
+        Args:
+            images (_type_): _description_
+            labels (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         return self.classifier_function._compute_average_loss(images=images, labels=labels)
 
     def _compute_average_gradient(self, images, labels):
+        """Calls classifier function to compute average
+        gradient of a given batch. Classifier function is 
+        determined in the initialization function.
+
+        Args:
+            images (_type_): _description_
+            labels (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         return self.classifier_function._compute_average_gradient(images=images, labels=labels)

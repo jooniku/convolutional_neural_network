@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from src.network.layers.convolutional_layer import ConvolutionalLayer
-from mnist_data_processor import training_images, training_labels
+from src.mnist_data_processor import training_images, training_labels
 
 class TestConvolutionalLayer(unittest.TestCase):
 

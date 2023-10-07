@@ -22,7 +22,8 @@ class ConvolutionalLayer:
 
     def _add_padding(self, image: np.array):
         """Adds zero-padding for the image to make sure the
-        operations work.
+        operations work. All images are padded to be the
+        same shape as the original input.
 
         Args:
             image (np.array): array representation of image
@@ -30,10 +31,8 @@ class ConvolutionalLayer:
         Returns:
             _type_: padded image
         """
-        needed_padding = (28 - self.filter_size + 1) // 2
+        needed_padding = (28 - len(image)) // 2
         
-        needed_padding = 1
-
         return np.pad(image, pad_width=needed_padding)
 
 
@@ -114,11 +113,13 @@ class ConvolutionalLayer:
             step_size (float): _description_
         """
         gradient_filter = np.zeros_like(filter)
-
         for height in range(len(gradient_input)):
             for width in range(len(gradient_input)):
                 # gets a local region of the filters size
                 input_region = received_input[height:height+len(filter), width:width+len(filter)]
+                
+                if input_region.shape != filter.shape:
+                    break
 
                 region_gradient = gradient_input[height, width] * input_region
                 
@@ -130,37 +131,11 @@ class ConvolutionalLayer:
         return gradient_filter, gradient_filter
 
 
+"""
 
-img = np.array([[0, 0, 0, 2, 1],
-                [2, 0, 0, 2, 2],
-                [0, 2, 2, 2, 2],
-                [0, 2, 2, 0, 0],
-                [0, 2, 2, 1, 0]])
+cl  = ConvolutionalLayer(4, 2, 2)
+cl.received_inputs.append(np.full((28, 28), 2))
+image = np.ones((28, 28))
 
-#print(ConvolutionalLayer(filter_size=3, stride_length=2)._add_2d_convolution(img))
-
-
-
-"""    
-from matplotlib import pyplot as plt
-
-from mnist_data_processor import training_images
-
-train_img = training_images[7]
-training_image = np.array([[0.5]*28 for i in range(28)])
-bias_vector = np.array([0, 0, 0])
-stride_length = 2
-filter = np.array([[0, -1, 0], 
-                        [-1, 5, -1], 
-                        [0, -1, 0]])
-conv = ConvolutionalLayer(3)
-conv._add_2d_convolution(training_image, filter, bias_vector=bias_vector, stride_length=stride_length)
-
-conv = ConvolutionalLayer(3)
-data = conv._add_2d_convolution(train_img, filter=filter, bias_vector=bias_vector, stride_length=stride_length)
-
-
-plt.imshow(data, interpolation='nearest')
-plt.show()
-
+cl._backpropagation(image, 0.1)
 """
