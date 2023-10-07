@@ -19,6 +19,12 @@ poetry install
 ```bash
 poetry run invoke start
 ```
+Rudimentary testing of the network can be done with
+```bash
+poetry run invoke test-network
+```
+However, the learning process is very slow and with hyperparameter adjustments can get more significant drops in loss.
+
 
 ## Testing
 
