@@ -1,4 +1,4 @@
-from src.network.layers.softmax import SoftMaxClassifier
+from src.network.layers.classifier import Classifier
 import numpy as np
 
 class FullyConnectedLayer:
@@ -10,7 +10,7 @@ class FullyConnectedLayer:
         self.number_of_classes = num_of_classes
         self.step_size = learning_step_size
 
-        self.classifier_function = SoftMaxClassifier(learning_step_size=learning_step_size, reg_strength=reg_strength)
+        self.classifier_function = Classifier(learning_step_size=learning_step_size, reg_strength=reg_strength)
 
 
     def _process(self, image):
@@ -32,7 +32,9 @@ class FullyConnectedLayer:
 
         self.activations = np.dot(self.weight_matrix, flattened_image)
 
-        return self.activations
+        result = self.classifier_function._compute_softmax_probabilities(self.activations)
+
+        return result
 
     def __initialize_weigth_matrix(self, image_shape):
         """Initialize weight matrix for the FC layer.
@@ -44,35 +46,11 @@ class FullyConnectedLayer:
         """
         self.input_image_shape = image_shape
         size = image_shape[0]**2
-        self.weight_matrix = 0.01 *np.random.randn(self.number_of_classes, size) * np.sqrt(2.0 / 196)
+        self.weight_matrix = 0.01*np.random.randn(self.number_of_classes, size) * np.sqrt(2.0 / size)
 
 
-    def _compute_loss(self, image, label):
-        """_summary_
 
-        Args:
-            image (_type_): _description_
-            kernel (_type_): _description_
-            label (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        return self.classifier_function._cross_entropy_loss(image, label)
-
-    def _compute_gradient(self, image, label):
-        """_summary_
-
-        Args:
-            image (_type_): _description_
-            label (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        return self.classifier_function._compute_gradient(image, label)
-    
-    def _update_parameters(self, gradient_score):
+    def _update_parameters(self, gradient_score, reg_strength):
         """Updates the weights in the weight matrix
         with the given gradients. 
 
@@ -88,6 +66,9 @@ class FullyConnectedLayer:
         
         gradient_weight = np.dot(self.received_input, gradient_score)
 
+        # L2 regularization
+        gradient_weight += self.weight_matrix.T*reg_strength
+
         self.weight_matrix += -self.step_size * gradient_weight.T
 
         gradient_input = np.dot(gradient_score, self.weight_matrix)
@@ -95,11 +76,11 @@ class FullyConnectedLayer:
         gradient_input = gradient_input.reshape(self.input_image_shape)
 
         return gradient_input
-        
 
-    def _compute_average_loss(self, images, labels):
+
+    def _compute_loss(self, probabilities, labels):
         """Calls the classifier function to compute
-        average loss, which is given (the function)
+        loss, which is given (the function)
         as a parameter in the initialization.
 
         Args:
@@ -109,9 +90,9 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_average_loss(images=images, labels=labels)
+        return self.classifier_function._compute_cross_entropy_loss(probabilities=probabilities, labels=labels)
 
-    def _compute_average_gradient(self, images, labels):
+    def _compute_gradient(self, probabilities, labels):
         """Calls classifier function to compute average
         gradient of a given batch. Classifier function is 
         determined in the initialization function.
@@ -123,4 +104,4 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_average_gradient(images=images, labels=labels)
+        return self.classifier_function._compute_average_gradient(probabilities=probabilities, labels=labels)
