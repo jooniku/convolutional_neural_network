@@ -82,6 +82,20 @@ class ConvolutionalLayer:
 
         return output
 
+    def _convolute2d_matrix(self, image: np.array, filter: np.array):
+        num_input_row, num_input_col = image.shape
+        num_filter_row, num_filter_col = filter.shape
+
+        num_output_row = num_input_row + num_filter_row - 1
+        num_output_col = num_input_col + num_filter_col - 1
+
+        # zero-pad filter so that the padding is on the top and right of values
+        padded_filter = np.pad(filter, ((num_output_row - num_filter_row, 0),
+                                        (0, num_output_col - num_filter_col)), 
+                                        "constant", constant_values=0)
+        
+
+
     def _backpropagation(self, gradient_input, step_size):
         """This function takes care of the backpropagation for the
         convolution layer. For each filter in the layer, it calls
@@ -113,23 +127,83 @@ class ConvolutionalLayer:
             step_size (float): _description_
         """
         gradient_filter = np.zeros_like(filter)
-        for height in range(len(gradient_input)):
-            for width in range(len(gradient_input)):
-                # gets a local region of the filters size
-                input_region = received_input[height:height+len(filter), width:width+len(filter)]
-                
-                if input_region.shape != filter.shape:
-                    break
+        filter_height, filter_width = filter.shape
 
+
+        for height in range(len(gradient_input)-filter_height):
+            for width in range(len(gradient_input)-filter_width):
+                # gets a local region of the filters size
+                input_region = received_input[height:height+filter_height, width:width+filter_width]
+                
                 region_gradient = gradient_input[height, width] * input_region
                 
                 gradient_filter += region_gradient
 
-                gradient_filter /= len(gradient_input)**2
+        gradient_filter /= len(gradient_input)**2
 
 
-        return gradient_filter, gradient_filter
+        return gradient_filter
 
+
+    def _convolute2d_matrix(self, image: np.array, filter: np.array):
+        
+        doubly_blocked_filter, output_shape = self.__create_doubly_blocked_toeplitz_filter(image.shape, filter)
+
+        flat_image = np.reshape(np.flipud(image), (image.shape[0]*image.shape[1]))
+        
+        result_vector = np.dot(doubly_blocked_filter, flat_image)
+        
+
+        result = np.flipud(result_vector.reshape(output_shape))
+
+        #print(result)
+
+
+    def __create_doubly_blocked_toeplitz_filter(self, input_shape, filter):
+        num_input_row, num_input_col = input_shape
+        num_filter_row, num_filter_col = filter.shape
+
+        num_output_row = num_input_row + num_filter_row - 1
+        num_output_col = num_input_col + num_filter_col - 1
+
+        # zero-pad filter so that the padding is on the top and right of values
+        padded_filter = np.pad(filter, ((num_output_row - num_filter_row, 0),
+                                        (0, num_output_col - num_filter_col)), 
+                                        "constant", constant_values=0)
+        
+        # create toeplitz matrixes from rows and add them to a list in reverse order
+        toeplitz_matrixes = []
+        for row in range(padded_filter.shape[0]-1, -1, -1):
+            toeplitz_column = padded_filter[row].copy()
+            toeplitz_row = np.r_[toeplitz_column[0], np.zeros(num_input_col-1)]
+
+            matrix = toeplitz(c=toeplitz_column, r=toeplitz_row)
+            toeplitz_matrixes.append(matrix)
+
+        # get the indexes of the doubly-blocked matrix
+        doubly_colums = range(1, padded_filter.shape[0]+1)
+        doubly_rows = np.r_[doubly_colums[0], np.zeros(num_input_row-1, dtype=int)]
+
+        double_indexes = toeplitz(doubly_colums, doubly_rows)
+
+        # get the shape of the doubly-blocked matrix
+        height = toeplitz_matrixes[0].shape[0]*double_indexes.shape[0]
+        width = toeplitz_matrixes[0].shape[1]*double_indexes.shape[1]
+        doubly_blocked_shape = (height, width)
+        doubly_blocked = np.zeros(doubly_blocked_shape)
+
+        # fill in the doubly blocked matrix
+        block_height, block_width = toeplitz_matrixes[0].shape
+        for row in range(double_indexes.shape[0]):
+            for column in range(double_indexes.shape[1]):
+                start_row = row * block_height
+                start_column = column * block_width
+                end_row = start_row + block_height
+                end_column = start_column + block_width
+
+                doubly_blocked[start_row:end_row, start_column:end_column] = toeplitz_matrixes[double_indexes[row, column]-1]
+        
+        return doubly_blocked, (num_output_row, num_output_col)
 
 """
 

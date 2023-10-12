@@ -15,8 +15,8 @@ class NeuralNetwork:
 
     def __init__(self, filter_size=3, # Note: (filter_size - stride_length) // 2 must return an integer
                  stride_length=1,     # Note: (W - F + 2P)//S + 1 also must return integer
-                 num_of_convolutional_layers=2,
-                 num_of_filters_in_conv_layer=3,
+                 num_of_convolutional_layers=1,
+                 num_of_filters_in_conv_layer=2,
                  learning_step_size=0.01,
                  epochs=1000,
                  reg_strength=0.001,
