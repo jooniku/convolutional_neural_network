@@ -9,8 +9,9 @@ if False:
     for i in range(15):
         learning_rate = 10 ** random.uniform(-6, 1)
         reg_strength = 10 ** (0.1 * random.uniform(-6, 1))
-        nn = NeuralNetwork(learning_step_size=learning_rate, reg_strength=reg_strength, epochs=50)
-        
+        nn = NeuralNetwork(learning_step_size=learning_rate,
+                           reg_strength=reg_strength, epochs=50)
+
         start_time = time.time()
         nn._train_network()
         training_time = time.time() - start_time
@@ -24,7 +25,8 @@ if False:
 
         hyperparameters.append((result, learning_rate, reg_strength))
 
-        print("Accuracy:", (result / 100)*100, "%, ", "Training time", training_time, "seconds")
+        print("Accuracy:", (result / 100)*100, "%, ",
+              "Training time", training_time, "seconds")
 
     print(max(hyperparameters))
 
@@ -41,5 +43,5 @@ if True:
         if prediction == test_labels[test]:
             result += 1
 
-
-    print("Accuracy:", (result / 100)*100, "%, ", "Training time", training_time, "seconds")
+    print("Accuracy:", (result / 100)*100, "%, ",
+          "Training time", training_time, "seconds")

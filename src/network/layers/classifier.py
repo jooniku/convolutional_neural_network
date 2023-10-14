@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Classifier:
 
     def __init__(self, learning_step_size, reg_strength) -> None:
@@ -21,10 +22,10 @@ class Classifier:
         image -= np.max(image)
 
         exp_scores = np.exp(image)
-        probabilities = (exp_scores / np.sum(exp_scores, axis=0, keepdims=True))
-        
-        return probabilities
+        probabilities = (
+            exp_scores / np.sum(exp_scores, axis=0, keepdims=True))
 
+        return probabilities
 
     def _compute_cross_entropy_loss(self, probabilities, labels):
         """This function computes the cross-entropy loss
@@ -43,8 +44,8 @@ class Classifier:
 
         return loss
 
-    def _compute_average_gradient(self, probabilities, labels):
-        """This function computes the average gradient
+    def _compute_gradients(self, probabilities, labels):
+        """This function computes the gradients
         of the batch. 
 
         Args:
@@ -57,6 +58,6 @@ class Classifier:
         for i in range(len(probabilities)):
             probabilities[i][labels[i]-1] -= 1
 
-        average_gradient = np.mean(probabilities, axis=0)
+        gradients = np.array(probabilities)
 
-        return average_gradient
+        return gradients

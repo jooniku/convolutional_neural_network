@@ -15,12 +15,9 @@ class MainPageView:
     def destroy(self):
         self._frame.destroy()
 
-
     def _initialize(self):
         '''Initialize page.
         '''
 
         self._frame = ttk.Frame(master=self._root)
         self.heading_label = ttk.Label(master=self._frame)
-
-

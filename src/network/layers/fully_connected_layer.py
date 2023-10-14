@@ -1,6 +1,7 @@
 from src.network.layers.classifier import Classifier
 import numpy as np
 
+
 class FullyConnectedLayer:
     """Fully connected layer.
     The final layer(s) in the network.
@@ -9,11 +10,14 @@ class FullyConnectedLayer:
     def __init__(self, num_of_classes, learning_step_size, reg_strength) -> None:
         self.number_of_classes = num_of_classes
         self.step_size = learning_step_size
+        self.reg_strength = reg_strength
+        self.received_inputs = []
+        self.weight_matrix = None
 
-        self.classifier_function = Classifier(learning_step_size=learning_step_size, reg_strength=reg_strength)
+        self.classifier_function = Classifier(
+            learning_step_size=learning_step_size, reg_strength=reg_strength)
 
-
-    def _process(self, image):
+    def _process(self, images):
         """This is a function to process the input image
         through the layer.
 
@@ -25,18 +29,18 @@ class FullyConnectedLayer:
         """
 
         # initialize weight matrix here to get correct dimensions
-        self.__initialize_weigth_matrix(image.shape)
-        
-        flattened_image = image.flatten()
-        self.received_input = flattened_image
+        self.__initialize_weigth_matrix(images.shape)
+        flattened_images = images.flatten()
+        self.received_inputs.append(flattened_images)
 
-        self.activations = np.dot(self.weight_matrix, flattened_image)
+        activation = np.dot(flattened_images, self.weight_matrix)
 
-        result = self.classifier_function._compute_softmax_probabilities(self.activations)
+        result = self.classifier_function._compute_softmax_probabilities(
+            activation)
 
         return result
 
-    def __initialize_weigth_matrix(self, image_shape):
+    def __initialize_weigth_matrix(self, images_shape):
         """Initialize weight matrix for the FC layer.
         Is called when image is received so it is
         created with the correct dimensions.
@@ -44,13 +48,13 @@ class FullyConnectedLayer:
         Args:
             image_shape (_type_): input image shape
         """
-        self.input_image_shape = image_shape
-        size = image_shape[0]**2
-        self.weight_matrix = 0.01*np.random.randn(self.number_of_classes, size) * np.sqrt(2.0 / size)
+        if self.weight_matrix is None:
+            self.input_image_shape = images_shape
+            size = images_shape[0]*images_shape[1]**2
+            self.weight_matrix = 0.01 * \
+                np.random.randn(size, self.number_of_classes) * np.sqrt(2.0 / size)
 
-
-
-    def _update_parameters(self, gradient_score, reg_strength):
+    def _update_parameters(self, gradient_score):
         """Updates the weights in the weight matrix
         with the given gradients. 
 
@@ -60,23 +64,23 @@ class FullyConnectedLayer:
         Returns:
             _type_: Gradients for the next layer
         """
-        gradient_score = gradient_score.reshape(1, -1)
-        self.received_input = self.received_input.reshape(-1, 1)
-
-        
-        gradient_weight = np.dot(self.received_input, gradient_score)
+        self.received_inputs = np.array(self.received_inputs)
+        gradient_weight = np.dot(self.received_inputs.T, gradient_score)
 
         # L2 regularization
-        gradient_weight += self.weight_matrix.T*reg_strength
+        gradient_weight += self.weight_matrix*self.reg_strength
 
-        self.weight_matrix += -self.step_size * gradient_weight.T
+        self.weight_matrix += -self.step_size * gradient_weight
 
-        gradient_input = np.dot(gradient_score, self.weight_matrix)
-
-        gradient_input = gradient_input.reshape(self.input_image_shape)
-
-        return gradient_input
-
+        gradient_for_next_layer = np.dot(gradient_score, self.weight_matrix.T)
+        
+        # take the mean gradient of the batch
+        gradient_for_next_layer = np.mean(gradient_for_next_layer, axis=0)
+        
+        # empty received_inputs for next epoch
+        self.received_inputs = []
+        
+        return gradient_for_next_layer.reshape(self.input_image_shape)
 
     def _compute_loss(self, probabilities, labels):
         """Calls the classifier function to compute
@@ -104,4 +108,4 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_average_gradient(probabilities=probabilities, labels=labels)
+        return self.classifier_function._compute_gradients(probabilities=probabilities, labels=labels)

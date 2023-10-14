@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import toeplitz
 
+
 class ConvolutionalLayer:
 
     def __init__(self, filter_size, stride_length, num_of_filters):
@@ -15,9 +16,9 @@ class ConvolutionalLayer:
         The weights are initialized to small random numbers.
         """
         # create filter using numbers from numpys samples of "standard normal" distribution
-        self.filters = [0.01 *np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
+        self.filters = [0.01 * np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
                         for i in range(self.num_of_filters)]
-        
+
         self.received_inputs = []
 
     def _add_padding(self, image: np.array):
@@ -32,24 +33,27 @@ class ConvolutionalLayer:
             _type_: padded image
         """
         needed_padding = (28 - len(image)) // 2
-        
+
         return np.pad(image, pad_width=needed_padding)
 
-
-    def _add_2d_convolution(self, image):
+    def _add_2d_convolution(self, images):
         """This function is called for convolution. It
         calls the actual convolution function with 
-        all filters in the convolutional layer.
+        all filters in the convolutional layer and
+        returns a 3D array with each filter activation.
 
         Args:
             image (np.array): image to convolute
         """
-        for filter in self.filters:
-            image = self._convolute2d(image=self._add_padding(image), filter=filter)
-        return image
+        output_image = []
+        for filter in range(len(self.filters)):
+            filter_output = self._convolute2d(
+                image=self._add_padding(images[filter]), filter=self.filters[filter])
+            output_image.append(filter_output)
+        
+        return np.array(output_image)
 
-
-    def _convolute2d(self, image: np.array, filter):
+    def _convolute2d(self, image, filter):
         """This is the main convolution function. Using
         this class' filter, slide the filter across the
         image and add the bias vector. At each position, 
@@ -67,21 +71,21 @@ class ConvolutionalLayer:
         filter_y_pos = 0
         while filter_y_pos <= (len(image) - len(filter)):
             filter_x_pos = 0
-            output_image_sublist = [] # these act as the rows in the output image
+            output_image_sublist = []  # these act as the rows in the output image
             while filter_x_pos <= (len(image) - len(filter)):
                 local_area_sum = 0
                 for row in range(len(filter)):
                     for column in range(len(filter)):
-                        local_area_sum += image[filter_y_pos + row][filter_x_pos + column]*filter[row][column]
+                        local_area_sum += image[filter_y_pos +
+                                                row][filter_x_pos + column]*filter[row][column]
                 output_image_sublist.append(local_area_sum)
                 filter_x_pos += self.stride_length
             output_image.append(output_image_sublist)
             filter_y_pos += self.stride_length
-        
+
         output = np.array(output_image)
 
         return output
-
 
     def _backpropagation(self, gradient_input, step_size, regularization_strength):
         """This function takes care of the backpropagation for the
@@ -96,19 +100,19 @@ class ConvolutionalLayer:
         Returns:
             gradient_input: the last gradient input goes to the next layer
         """
+        gradient_output = []
         for filter_i in range(len(self.filters)-1, -1, -1):
-            gradient_filter = self._get_filter_gradient(gradient_input=gradient_input,
-                                                                             filter=self.filters[filter_i],
-                                                                             received_input=self.received_inputs[filter_i])
+            gradient_filter = self._get_filter_gradient(gradient_input=gradient_input[filter_i],
+                                                        filter=self.filters[filter_i],
+                                                        received_input=self.received_inputs[filter_i])
             # Add L2 regularization
             gradient_filter += regularization_strength * self.filters[filter_i]
             # Update weights
             self.filters[filter_i] += -step_size*gradient_filter
 
-            gradient_input = self.filters[filter_i] * gradient_filter
+            gradient_output.append(self.filters[filter_i] * gradient_filter)
 
-        
-        return gradient_input
+        return np.array(gradient_output)
 
     def _get_filter_gradient(self, gradient_input, filter, received_input):
         """Update the filter and bias vector parameters in backpropagation.
@@ -120,19 +124,15 @@ class ConvolutionalLayer:
         """
         gradient_filter = np.zeros_like(filter)
         filter_height, filter_width = filter.shape
-
-
         for height in range(len(gradient_input)-filter_height):
             for width in range(len(gradient_input)-filter_width):
                 # gets a local region of the filters size
-                input_region = received_input[height:height+filter_height, width:width+filter_width]
-                
+                input_region = received_input[height:height +
+                                              filter_height, width:width+filter_width]
                 region_gradient = gradient_input[height, width] * input_region
-                
                 gradient_filter += region_gradient
 
         gradient_filter /= len(gradient_input)**2
-
 
         return gradient_filter
 

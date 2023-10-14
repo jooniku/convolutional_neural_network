@@ -6,6 +6,7 @@ from src.network.layers.input_layer import InputLayer
 import random
 import numpy as np
 
+
 class NeuralNetwork:
     """
     Class for the neural network. The layers are represented as classes also. 
@@ -13,16 +14,17 @@ class NeuralNetwork:
     layer classes and the main operations are performed in the layer classes.
     """
 
-    def __init__(self, filter_size=3, # Note: (filter_size - stride_length) // 2 must return an integer
-                 stride_length=2,     # Note: (W - F + 2P)//S + 1 also must return integer
+    def __init__(self, filter_size=3,  # Note: (filter_size - stride_length) // 2 must return an integer
+                 # Note: (W - F + 2P)//S + 1 also must return integer
+                 stride_length=2,
                  num_of_convolutional_layers=1,
-                 num_of_filters_in_conv_layer=2,
-                 learning_step_size=0.01,
-                 epochs=100,
-                 reg_strength=0.001,
-                 batch_size=3,
+                 num_of_filters_in_conv_layer=30,
+                 learning_step_size=0.001,
+                 epochs=2000,
+                 reg_strength=0.2,
+                 batch_size=1,
                  num_of_classes=10):
-        
+
         # hyperparameter initialization here
         self.filter_size = filter_size
         self.stride_length = stride_length
@@ -33,7 +35,7 @@ class NeuralNetwork:
         self.regularization_strength = reg_strength
         self.batch_size = batch_size
         self.num_of_classes = num_of_classes
-        
+
         self._initialize_custom_functions()
 
     def _initialize_custom_functions(self):
@@ -44,12 +46,13 @@ class NeuralNetwork:
 
         self._get_training_data()
         self.non_linearity_function = NonLinearity()._relu
-        self.pooling_layer = PoolingLayer(self.filter_size)
+        self.pooling_layer = PoolingLayer(kernel_size=2)
         self.pooling_function = self.pooling_layer._average_pooling
-        self.fully_connected_layer = FullyConnectedLayer(self.num_of_classes, self.learning_step_size, self.regularization_strength)
+        self.fully_connected_layer = FullyConnectedLayer(
+            self.num_of_classes, self.learning_step_size, self.regularization_strength)
         self._create_convolutional_layers()
         self._setup_training_batch()
-        
+
     def _get_training_data(self):
         """Imports the training data from the input layer
         so other layers can use it.
@@ -57,7 +60,8 @@ class NeuralNetwork:
         self.training_images, self.training_labels = InputLayer()._pass_training_data()
 
     def _setup_training_batch(self):
-        self.training_batch = [random.randint(0, len(self.training_images)-1) for i in range(self.batch_size)]
+        self.training_batch = [random.randint(
+            0, len(self.training_images)-1) for i in range(self.batch_size)]
 
     def _create_convolutional_layers(self):
         """Creates all of the convolutional layers
@@ -66,8 +70,8 @@ class NeuralNetwork:
 
         self.convolutional_layers = []
         for i in range(self.num_of_convolution_layers):
-            self.convolutional_layers.append(ConvolutionalLayer(self.filter_size, self.stride_length, self.num_of_filters_in_conv_layer))
-
+            self.convolutional_layers.append(ConvolutionalLayer(
+                self.filter_size, self.stride_length, self.num_of_filters_in_conv_layer))
 
     def _predict(self, image: np.array):
         """For an image, add convolution, then non-linearity
@@ -77,36 +81,48 @@ class NeuralNetwork:
         Args:
             image (np.array): _description_
         """
+        images = []
+        for i in range(self.num_of_filters_in_conv_layer):
+            images.append(image)
+        
         for conv_layer in self.convolutional_layers:
-            image = self.pooling_function(self._add_non_linearity(conv_layer._add_2d_convolution(image)))
-        prediction = np.argmax(self.fully_connected_layer._process(image))
+            images = self.pooling_function(self._add_non_linearity(
+                conv_layer._add_2d_convolution(images)))
+        
+        prediction = np.argmax(self.fully_connected_layer._process(images))
         return prediction
-    
+
     def _train_network(self):
         """This function is called to train the network.
         """
         for epoch in range(self.epochs):
             conv_images = []
             labels = []
-            for data in [random.randint(0, len(self.training_images)-1) for i in range(self.batch_size)]:
+            for data in [1]:#[random.randint(0, len(self.training_images)-1) for i in range(self.batch_size)]:
                 image = self.training_images[data]
                 label = self.training_labels[data]
+                
+                images = []
+                for i in range(self.num_of_filters_in_conv_layer):
+                    images.append(image)
 
                 for conv_layer in self.convolutional_layers:
-                    image = self.pooling_function(self._add_non_linearity(conv_layer._add_2d_convolution(image)))
+                    images = self.pooling_function(self._add_non_linearity(
+                        conv_layer._add_2d_convolution(images)))
 
-                probs = self.fully_connected_layer._process(image=image)
+                probs = self.fully_connected_layer._process(images=images)
 
                 conv_images.append(probs)
                 labels.append(label)
-                
-            loss = self.fully_connected_layer._compute_loss(probabilities=conv_images, labels=labels)
-            gradients = self.fully_connected_layer._compute_gradient(probabilities=conv_images, labels=labels)
-                
+
+            loss = self.fully_connected_layer._compute_loss(
+                probabilities=conv_images, labels=labels)
+            gradients = self.fully_connected_layer._compute_gradient(
+                probabilities=conv_images, labels=labels)
+
             self._backpropagate_network(gradients=gradients, loss=loss)
-                
+
             print("epoch:", epoch, "loss:", loss)
-                
 
     def _backpropagate_network(self, gradients, loss):
         """This function takes care of the main backpropagation
@@ -117,16 +133,19 @@ class NeuralNetwork:
             gradients (_type_): gradient of the forward pass
             loss (_type_): loss of the forward pass
         """
-        gradient_input = self.fully_connected_layer._update_parameters(gradient_score=gradients, reg_strength=self.regularization_strength)
+        gradient_input = self.fully_connected_layer._update_parameters(
+            gradient_score=gradients)
 
         # this is the shape that the convolutional layers take in
-        output_shape = np.shape(self.convolutional_layers[0].received_inputs[0])
+        output_shape = np.shape(
+        self.convolutional_layers[0].received_inputs[0])
 
         for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
-            gradient_input = self.pooling_layer._backpropagation_average_pooling(gradient_input, output_shape)
-            gradient_input = self.convolutional_layers[conv_layer]._backpropagation(gradient_input, self.learning_step_size, self.regularization_strength)
-
-
+            gradient_input = self.pooling_layer._backpropagation_average_pooling(
+                gradient_input, output_shape)
+            gradient_input = self.non_linearity_function(gradient_input)
+            gradient_input = self.convolutional_layers[conv_layer]._backpropagation(
+                gradient_input, self.learning_step_size, self.regularization_strength)
 
     def _add_non_linearity(self, image: np.array):
         """This function takes the convoluted data and
@@ -144,4 +163,3 @@ class NeuralNetwork:
         and then return the modified data
         """
         return self.non_linearity_function(image)
-        

@@ -5,6 +5,7 @@ from src.network.layers.convolutional_layer import ConvolutionalLayer
 from src.network.non_linearity import NonLinearity
 from src.mnist_data_processor import training_images, training_labels
 
+
 class TestNeuralNetwork(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -15,5 +16,3 @@ class TestNeuralNetwork(unittest.TestCase):
         self.training_label = training_labels[2]
 
         self.neuralnetwork = NeuralNetwork()
-
-

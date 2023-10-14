@@ -1,6 +1,7 @@
 from tkinter import Tk
 from app.ui import UI
 
+
 def main():
     '''Main window for application.
     This function is called with poetry command.

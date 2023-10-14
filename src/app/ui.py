@@ -1,6 +1,7 @@
 from tkinter import ttk
 from src.app.main_page import MainPageView
 
+
 class UI:
     '''Class responsible for user interface.'''
 
@@ -28,6 +29,5 @@ class UI:
 
         self._show_main_page()
 
-    
     def _show_main_page(self):
         pass
