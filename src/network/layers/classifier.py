@@ -41,8 +41,10 @@ class Classifier:
         loss = 0
         for i in range(len(probabilities)):
             loss += -np.log(probabilities[i][labels[i]-1])
+        
+        average_loss = loss / len(probabilities)
 
-        return loss
+        return average_loss
 
     def _compute_gradients(self, probabilities, labels):
         """This function computes the gradients

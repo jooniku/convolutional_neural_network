@@ -18,11 +18,11 @@ class NeuralNetwork:
                  # Note: (W - F + 2P)//S + 1 also must return integer
                  stride_length=2,
                  num_of_convolutional_layers=1,
-                 num_of_filters_in_conv_layer=30,
-                 learning_step_size=0.001,
-                 epochs=2000,
-                 reg_strength=0.2,
-                 batch_size=1,
+                 num_of_filters_in_conv_layer=15,
+                 learning_step_size=0.01,
+                 epochs=15,
+                 reg_strength=0.5,
+                 batch_size=500,
                  num_of_classes=10):
 
         # hyperparameter initialization here
@@ -98,7 +98,7 @@ class NeuralNetwork:
         for epoch in range(self.epochs):
             conv_images = []
             labels = []
-            for data in [1]:#[random.randint(0, len(self.training_images)-1) for i in range(self.batch_size)]:
+            for data in [random.randint(0, len(self.training_images)-1) for i in range(self.batch_size)]:
                 image = self.training_images[data]
                 label = self.training_labels[data]
                 
@@ -123,6 +123,8 @@ class NeuralNetwork:
             self._backpropagate_network(gradients=gradients, loss=loss)
 
             print("epoch:", epoch, "loss:", loss)
+            if loss < 0.1:
+                break
 
     def _backpropagate_network(self, gradients, loss):
         """This function takes care of the main backpropagation
