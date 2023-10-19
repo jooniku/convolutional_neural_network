@@ -32,9 +32,8 @@ class FullyConnectedLayer:
         self.__initialize_weigth_matrix(images.shape)
         flattened_images = images.flatten()
         self.received_inputs.append(flattened_images)
-
-        activation = np.dot(flattened_images, self.weight_matrix)
-
+        activation = np.dot(flattened_images, self.weight_matrix) + self.bias
+        
         result = self.classifier_function._compute_softmax_probabilities(
             activation)
 
@@ -52,7 +51,9 @@ class FullyConnectedLayer:
             self.input_image_shape = images_shape
             size = images_shape[0]*images_shape[1]**2
             self.weight_matrix = 0.01 * \
-                np.random.randn(size, self.number_of_classes) * np.sqrt(2.0 / size)
+                        np.random.randn(size, self.number_of_classes) \
+                        * np.sqrt(2.0 / size)
+            self.bias = np.zeros((self.number_of_classes))
 
     def _update_parameters(self, gradient_score):
         """Updates the weights in the weight matrix
@@ -69,8 +70,9 @@ class FullyConnectedLayer:
 
         # L2 regularization
         gradient_weight += self.weight_matrix*self.reg_strength
-
         self.weight_matrix += -self.step_size * gradient_weight
+
+        self.bias += -np.sum(gradient_score, axis=0)
 
         gradient_for_next_layer = np.dot(gradient_score, self.weight_matrix.T)
         
@@ -79,7 +81,6 @@ class FullyConnectedLayer:
         
         # empty received_inputs for next epoch
         self.received_inputs = []
-        
         return gradient_for_next_layer.reshape(self.input_image_shape)
 
     def _compute_loss(self, probabilities, labels):

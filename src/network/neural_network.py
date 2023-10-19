@@ -14,15 +14,14 @@ class NeuralNetwork:
     layer classes and the main operations are performed in the layer classes.
     """
 
-    def __init__(self, filter_size=3,  # Note: (filter_size - stride_length) // 2 must return an integer
-                 # Note: (W - F + 2P)//S + 1 also must return integer
+    def __init__(self, filter_size=3,
                  stride_length=2,
-                 num_of_convolutional_layers=1,
-                 num_of_filters_in_conv_layer=15,
+                 num_of_convolutional_layers=2,
+                 num_of_filters_in_conv_layer=14,
                  learning_step_size=0.01,
-                 epochs=15,
-                 reg_strength=0.5,
-                 batch_size=500,
+                 epochs=3,
+                 reg_strength=0.3,
+                 batch_size=10_000,
                  num_of_classes=10):
 
         # hyperparameter initialization here
@@ -84,7 +83,7 @@ class NeuralNetwork:
         images = []
         for i in range(self.num_of_filters_in_conv_layer):
             images.append(image)
-        
+        images = np.array(images)
         for conv_layer in self.convolutional_layers:
             images = self.pooling_function(self._add_non_linearity(
                 conv_layer._add_2d_convolution(images)))
@@ -105,6 +104,7 @@ class NeuralNetwork:
                 images = []
                 for i in range(self.num_of_filters_in_conv_layer):
                     images.append(image)
+                images = np.array(images)
 
                 for conv_layer in self.convolutional_layers:
                     images = self.pooling_function(self._add_non_linearity(
@@ -125,6 +125,8 @@ class NeuralNetwork:
             print("epoch:", epoch, "loss:", loss)
             if loss < 0.1:
                 break
+            #if epoch % 20 == 0:
+            #    self.learning_step_size *= 0.9
 
     def _backpropagate_network(self, gradients, loss):
         """This function takes care of the main backpropagation
@@ -138,11 +140,9 @@ class NeuralNetwork:
         gradient_input = self.fully_connected_layer._update_parameters(
             gradient_score=gradients)
 
-        # this is the shape that the convolutional layers take in
-        output_shape = np.shape(
-        self.convolutional_layers[0].received_inputs[0])
 
         for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
+            output_shape = len(self.convolutional_layers[conv_layer].received_inputs[0])
             gradient_input = self.pooling_layer._backpropagation_average_pooling(
                 gradient_input, output_shape)
             gradient_input = self.non_linearity_function(gradient_input)

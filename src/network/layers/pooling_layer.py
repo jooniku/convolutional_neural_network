@@ -10,6 +10,7 @@ class PoolingLayer:
         self.pooling_kernel_size = kernel_size
         self.stride_length = 1
 
+
     def _max_pooling(self, image: np.array):
         """Max pooling algorithm. Currently not tested with
         different kernel sizes or stride lengths. 
@@ -96,14 +97,13 @@ class PoolingLayer:
         """
         output = []
         for filter_i in range(gradient_input.shape[0]):
-            gradients = np.zeros(self.input_shape)
+            gradients = np.zeros((output_shape, output_shape))
             height, width = gradient_input.shape[1], gradient_input.shape[2]
             num_of_contributing_pos = self.pooling_kernel_size**2
             for row in range(height):
                 for column in range(width):
                     gradient_value = gradient_input[filter_i][row,
                                                     column] / num_of_contributing_pos
-
                     gradients[row:row+self.pooling_kernel_size, column:column+self.pooling_kernel_size] += gradient_value
             output.append(gradients)
         return np.array(output)
