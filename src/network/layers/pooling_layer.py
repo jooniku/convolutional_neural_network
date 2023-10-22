@@ -81,6 +81,7 @@ class PoolingLayer:
             output_images.append(pooled_image)
 
         return np.array(output_images)
+    
 
     def _backpropagation_average_pooling(self, gradient_input, output_shape):
         """Backpropagation through the average pooling
@@ -96,14 +97,18 @@ class PoolingLayer:
             _type_: _description_
         """
         output = []
+
         for filter_i in range(gradient_input.shape[0]):
+
             gradients = np.zeros((output_shape, output_shape))
             height, width = gradient_input.shape[1], gradient_input.shape[2]
             num_of_contributing_pos = self.pooling_kernel_size**2
+
             for row in range(height):
                 for column in range(width):
-                    gradient_value = gradient_input[filter_i][row,
-                                                    column] / num_of_contributing_pos
+                    gradient_value = gradient_input[filter_i][row][column] / num_of_contributing_pos
                     gradients[row:row+self.pooling_kernel_size, column:column+self.pooling_kernel_size] += gradient_value
+
             output.append(gradients)
+
         return np.array(output)

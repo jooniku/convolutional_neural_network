@@ -17,6 +17,8 @@ class TestConvolutionalLayer(unittest.TestCase):
         filter = np.array([[1, 1, 1],
                            [1, 0, 0],
                            [0, -1, -1]])
+        bias = 1
+        conv_layer.conv_in_shape = (1, 7, 7)
         test_img = np.array([[0, 0, 0, 0, 0, 0, 0],
                              [0, 0, 2, 0, 0, 2, 0],
                              [0, 0, 1, 0, 1, 2, 0],
@@ -25,20 +27,62 @@ class TestConvolutionalLayer(unittest.TestCase):
                              [0, 2, 1, 0, 1, 2, 0],
                              [0, 0, 0, 0, 0, 0, 0]])
 
-        correct_result = np.array([[-1, 1, -2],
-                                   [-2, 1, 1],
-                                   [3, 4, 3]])
+        correct_result = np.array([[0, 2, -1],
+                                   [-1, 2, 2],
+                                   [4, 5, 4]])
 
-        convoluted_img = conv_layer._convolute2d(test_img, filter)
+        convoluted_img = conv_layer._convolute2d(test_img, filter, bias)
 
         self.assertEqual(np.sum(convoluted_img), np.sum(correct_result))
+    
 
+    def test_backpropagation_is_correct(self):
+        conv_layer = ConvolutionalLayer(
+            num_of_filters=2, filter_size=3, stride_length=2)
+        conv_layer.bias_vector = np.array([1, 2])
+        conv_layer.filters = [np.array([[1, 1, 1],
+                           [1, 0, 0],
+                           [0, -1, -1]]), 
+                           np.array([[2, 2, 2],
+                           [2, 0, 0],
+                           [0, -2, -2]])]
 
-"""
-    def test_adding_padding_adds_proper_amount(self):
-        image1 = self.conv_layer._add_padding(self.training_image)
-        image2 = self.conv_layer_large._add_padding(self.training_image)
+        
+        images = np.array([[[0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 2, 0, 0, 2, 0],
+                             [0, 0, 1, 0, 1, 2, 0],
+                             [0, 1, 0, 2, 0, 1, 0],
+                             [0, 1, 2, 1, 0, 2, 0],
+                             [0, 2, 1, 0, 1, 2, 0],
+                             [0, 0, 0, 0, 0, 0, 0]],
+                             [[0, 0, 0, 0, 0, 0, 0],
+                             [0, 0, 2, 0, 0, 2, 0],
+                             [0, 0, 1, 0, 1, 2, 0],
+                             [0, 1, 0, 2, 0, 1, 0],
+                             [0, 1, 2, 1, 0, 2, 0],
+                             [0, 2, 1, 0, 1, 2, 0],
+                             [0, 0, 0, 0, 0, 0, 0]]])
+        
+        
 
-        self.assertEqual((30, 30), image1.shape)
-        self.assertEqual((32, 32), image2.shape)
-"""
+        output_dim = int((images.shape[1]-conv_layer.filter_size)/conv_layer.stride_length) + 1
+        output_image = np.zeros((conv_layer.num_of_filters, output_dim, output_dim))
+        conv_layer.conv_in_shape = images.shape
+        for filter in range(len(conv_layer.filters)):
+            filter_output = conv_layer._convolute2d(
+                image=images[filter], filter=conv_layer.filters[filter], bias=conv_layer.bias_vector[filter])
+            output_image[filter] += filter_output
+
+                        
+        gradients = np.array([[[1., 2., 3.],
+                               [1., 2., 3.],
+                               [1., 2., 3.]],
+                               [[4., 5., 6.],
+                               [4., 5., 6.],
+                               [4., 5., 6.]]])
+        
+        dout = conv_layer._backpropagation(gradients, 1.0, 0.1)
+        print(conv_layer.filters)
+
+        self.assertEqual(1, 0)
+    

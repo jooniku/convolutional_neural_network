@@ -16,11 +16,9 @@ class ConvolutionalLayer:
         The weights are initialized to small random numbers.
         """
         # create filter using numbers from numpys samples of "standard normal" distribution
-        self.filters = [0.01 * np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
+        self.filters = [0.001 + 0.01 * np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
                         for i in range(self.num_of_filters)]
         self.bias_vector = [0.01 for i in range(self.num_of_filters)]
-
-        self.received_inputs = []
 
     def _add_padding(self, image: np.array):
         """Adds zero-padding for the image to make sure the
@@ -47,13 +45,15 @@ class ConvolutionalLayer:
         Args:
             image (np.array): image to convolute
         """
+        self.received_inputs = images
+
         output_dim = int((images.shape[1]-self.filter_size)/self.stride_length) + 1
         output_image = np.zeros((self.num_of_filters, output_dim, output_dim))
         self.conv_in_shape = images.shape
         for filter in range(len(self.filters)):
             filter_output = self._convolute2d(
                 image=self._add_padding(images[filter]), filter=self.filters[filter], bias=self.bias_vector[filter])
-            output_image[filter] = filter_output
+            output_image[filter] += filter_output
         
         return output_image
 
@@ -70,7 +70,6 @@ class ConvolutionalLayer:
         """
 
         output_image = []
-        self.received_inputs.append(image)
 
         filter_y_pos = 0
         while filter_y_pos + self.filter_size <= self.conv_in_shape[1]:
@@ -81,8 +80,8 @@ class ConvolutionalLayer:
                 for row in range(len(filter)):
                     for column in range(len(filter)):
                         local_area_sum += image[filter_y_pos +
-                                                row][filter_x_pos + column]*filter[row][column] + bias
-                output_image_sublist.append(local_area_sum)
+                                                row][filter_x_pos + column]*filter[row][column]
+                output_image_sublist.append(local_area_sum + bias)
                 filter_x_pos += self.stride_length
             output_image.append(output_image_sublist)
             filter_y_pos += self.stride_length
@@ -90,6 +89,7 @@ class ConvolutionalLayer:
         output = np.array(output_image)
 
         return output
+    
 
     def _backpropagation(self, gradient_input, step_size, regularization_strength):
         """This function takes care of the backpropagation for the
@@ -109,13 +109,11 @@ class ConvolutionalLayer:
             gradient_filter, d_out = self._get_filter_gradient(gradient_input=gradient_input[filter_i],
                                                         filter=self.filters[filter_i],
                                                         received_input=self.received_inputs[filter_i])
-
             # Add L2 regularization
             gradient_filter += regularization_strength * self.filters[filter_i]
             # Update weights
-            self.filters[filter_i] += -step_size*gradient_filter / len(self.received_inputs)
-
-            self.bias_vector[filter_i] += -step_size * np.sum(gradient_input[filter_i]) / len(self.received_inputs)
+            self.filters[filter_i] -= step_size*gradient_filter
+            self.bias_vector[filter_i] -= step_size * np.sum(gradient_input[filter_i])
 
             gradient_output[filter_i] = d_out
 

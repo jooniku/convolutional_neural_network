@@ -11,7 +11,6 @@ class FullyConnectedLayer:
         self.number_of_classes = num_of_classes
         self.step_size = learning_step_size
         self.reg_strength = reg_strength
-        self.received_inputs = []
         self.weight_matrix = None
 
         self.classifier_function = Classifier(
@@ -31,7 +30,7 @@ class FullyConnectedLayer:
         # initialize weight matrix here to get correct dimensions
         self.__initialize_weigth_matrix(images.shape)
         flattened_images = images.flatten()
-        self.received_inputs.append(flattened_images)
+        self.received_inputs = flattened_images
         activation = np.dot(flattened_images, self.weight_matrix) + self.bias
         
         result = self.classifier_function._compute_softmax_probabilities(
@@ -66,24 +65,21 @@ class FullyConnectedLayer:
             _type_: Gradients for the next layer
         """
         self.received_inputs = np.array(self.received_inputs)
+        self.received_inputs = self.received_inputs.reshape(1, -1)
+        gradient_score = gradient_score.reshape(1, -1)
         gradient_weight = np.dot(self.received_inputs.T, gradient_score)
 
         # L2 regularization
         gradient_weight += self.weight_matrix*self.reg_strength
         self.weight_matrix += -self.step_size * gradient_weight
 
-        self.bias += -np.sum(gradient_score, axis=0)
+        self.bias += -np.sum(gradient_score)
 
         gradient_for_next_layer = np.dot(gradient_score, self.weight_matrix.T)
         
-        # take the mean gradient of the batch
-        gradient_for_next_layer = np.mean(gradient_for_next_layer, axis=0)
-        
-        # empty received_inputs for next epoch
-        self.received_inputs = []
         return gradient_for_next_layer.reshape(self.input_image_shape)
 
-    def _compute_loss(self, probabilities, labels):
+    def _compute_loss(self, probabilities, label):
         """Calls the classifier function to compute
         loss, which is given (the function)
         as a parameter in the initialization.
@@ -95,9 +91,9 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_cross_entropy_loss(probabilities=probabilities, labels=labels)
+        return self.classifier_function._compute_cross_entropy_loss(probabilities=probabilities, label=label)
 
-    def _compute_gradient(self, probabilities, labels):
+    def _compute_gradient(self, probabilities, label):
         """Calls classifier function to compute average
         gradient of a given batch. Classifier function is 
         determined in the initialization function.
@@ -109,4 +105,4 @@ class FullyConnectedLayer:
         Returns:
             _type_: _description_
         """
-        return self.classifier_function._compute_gradients(probabilities=probabilities, labels=labels)
+        return self.classifier_function._compute_gradients(probabilities=probabilities, label=label)

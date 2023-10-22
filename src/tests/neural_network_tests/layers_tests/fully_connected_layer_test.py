@@ -16,18 +16,21 @@ class TestFullyConnectedLayer(unittest.TestCase):
                     learning_step_size=0.01, reg_strength=0.001)
         
         self.layer.weight_matrix = np.zeros((9, 3))
+        self.layer.bias = np.zeros(3)
         self.layer.input_image_shape = (3, 3)
-        label = [1]
+        label = 1
 
         input_image = np.array([[1, 2, 3],
                                 [4, 5, 6],
                                 [7, 8, 9]])
-        probs = [self.layer._process(input_image)]
+        probs = self.layer._process(input_image)
         grads = self.layer._compute_gradient(probs, label)
         
         self.layer._update_parameters(grads)
         
         updated_weight_matrix = self.layer.weight_matrix
+        updated_bias = self.layer.bias
+        correct_bias = np.sum(grads, keepdims=True)
         correct_update_weights = np.array([[0.00666667, -0.0033333, -0.0033333],
                                            [0.01333, -0.006666, -0.0066666],
                                            [0.020000, -0.00999999, -0.00999999],
@@ -39,3 +42,4 @@ class TestFullyConnectedLayer(unittest.TestCase):
         
 
         self.assertAlmostEqual(sum(sum(updated_weight_matrix)), sum(sum(correct_update_weights)), 4)
+        self.assertAlmostEqual(sum(updated_bias), sum(correct_bias), delta=3)

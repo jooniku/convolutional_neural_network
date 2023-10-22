@@ -27,7 +27,7 @@ class Classifier:
 
         return probabilities
 
-    def _compute_cross_entropy_loss(self, probabilities, labels):
+    def _compute_cross_entropy_loss(self, probabilities, label):
         """This function computes the cross-entropy loss
         for the batch of images. 
 
@@ -38,15 +38,11 @@ class Classifier:
         Returns:
             Loss : Total loss over the complete batch
         """
-        loss = 0
-        for i in range(len(probabilities)):
-            loss += -np.log(probabilities[i][labels[i]-1])
+        loss = -np.log(probabilities[label])
         
-        average_loss = loss / len(probabilities)
+        return loss
 
-        return average_loss
-
-    def _compute_gradients(self, probabilities, labels):
+    def _compute_gradients(self, probabilities, label):
         """This function computes the gradients
         of the batch. 
 
@@ -57,8 +53,7 @@ class Classifier:
         Returns:
             _type_: _description_
         """
-        for i in range(len(probabilities)):
-            probabilities[i][labels[i]-1] -= 1
+        probabilities[label] -= 1
 
         gradients = np.array(probabilities)
 

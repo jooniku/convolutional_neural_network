@@ -21,15 +21,12 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual(probs, correct_probs)
 
     def test_cross_entropy_loss_is_correct(self):
-        labels = [3, 2]
-        images = [[1, 2, 8], [4, 9, 6]]
+        labels = 3
+        images = [1, 2, 8]
 
-        probabilities = []
-        for image in images:
-            probabilities.append(
-                self.classifier._compute_softmax_probabilities(image=image))
+        probabilities = self.classifier._compute_softmax_probabilities(image=images)
 
-        correct_cross_loss = 0.05837
+        correct_cross_loss = 0.0033848989
 
         cross_loss = self.classifier._compute_cross_entropy_loss(
             probabilities, labels)
@@ -37,27 +34,21 @@ class TestClassifier(unittest.TestCase):
         self.assertAlmostEqual(cross_loss, correct_cross_loss, 4)
 
     def test_gradients_are_correct(self):
-        labels = [3, 2]
-        images = [[1, 2, 8], [4, 9, 6]]
+        labels = 3
+        images = [1, 2, 8]
 
-        probabilities = []
-        for image in images:
-            probabilities.append(
-                self.classifier._compute_softmax_probabilities(image=image))
+        probabilities = self.classifier._compute_softmax_probabilities(image=images)
 
         grads = self.classifier._compute_gradients(
             probabilities, labels)
-        correct_grad = [[0.0009088, 0.00247037, -0.0033792]
-                        ,[0.00637746, -0.0535008, 0.0471234]]
+        correct_grad = [0.0009088, 0.00247037, -0.0033792]
 
         grads_sum = 0
         for row in grads:
-            for col in row:
-                grads_sum += col
+            grads_sum += row
 
         correct_sum = 0
         for row in correct_grad:
-            for col in row:
-                correct_sum += col
+            correct_sum += row
 
         self.assertAlmostEqual(grads_sum, correct_sum, 4)
