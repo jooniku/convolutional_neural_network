@@ -15,6 +15,8 @@ class FullyConnectedLayer:
 
         self.classifier_function = Classifier(
             learning_step_size=learning_step_size, reg_strength=reg_strength)
+        
+        self.initialize_weight_matrix()
 
     def _process(self, images):
         """This is a function to process the input image
@@ -26,9 +28,6 @@ class FullyConnectedLayer:
         Returns:
             _type_: dot product of input image and weights
         """
-
-        # initialize weight matrix here to get correct dimensions
-        self.__initialize_weigth_matrix(images.shape)
         flattened_images = images.flatten()
         self.received_inputs = flattened_images
         activation = np.dot(flattened_images, self.weight_matrix) + self.bias
@@ -38,7 +37,7 @@ class FullyConnectedLayer:
 
         return result
 
-    def __initialize_weigth_matrix(self, images_shape):
+    def initialize_weight_matrix(self):
         """Initialize weight matrix for the FC layer.
         Is called when image is received so it is
         created with the correct dimensions.
@@ -46,15 +45,28 @@ class FullyConnectedLayer:
         Args:
             image_shape (_type_): input image shape
         """
-        if self.weight_matrix is None:
-            self.input_image_shape = images_shape
-            size = images_shape[0]*images_shape[1]**2
-            self.weight_matrix = 0.01 * \
-                        np.random.randn(size, self.number_of_classes) \
-                        * np.sqrt(2.0 / size)
-            self.bias = np.zeros((self.number_of_classes))
+        self.input_image_shape = (5, 12, 12)
+        #size = images_shape[0]*images_shape[1]**2
+        size = 5 * 12 * 12
+        self.weight_matrix = 0.01 * \
+                    np.random.randn(size, self.number_of_classes) \
+                    * np.sqrt(2.0 / size)
+        self.bias = np.zeros((self.number_of_classes))
 
-    def _update_parameters(self, gradient_score):
+
+    def initialize_gradients(self):
+        self.gradient_weight = np.zeros_like(self.weight_matrix)
+        self.bias_gradient = np.zeros_like(self.bias)
+
+
+    def update_parameters(self, batch_size, learning_rate):
+        self.gradient_weight /= batch_size
+        self.bias_gradient /= batch_size
+
+        self.weight_matrix -= learning_rate * self.gradient_weight
+        self.bias -= learning_rate * self.bias_gradient
+
+    def backpropagation(self, gradient_score):
         """Updates the weights in the weight matrix
         with the given gradients. 
 
@@ -67,13 +79,13 @@ class FullyConnectedLayer:
         self.received_inputs = np.array(self.received_inputs)
         self.received_inputs = self.received_inputs.reshape(1, -1)
         gradient_score = gradient_score.reshape(1, -1)
-        gradient_weight = np.dot(self.received_inputs.T, gradient_score)
+
+        self.gradient_weight += np.dot(self.received_inputs.T, gradient_score)
 
         # L2 regularization
-        gradient_weight += self.weight_matrix*self.reg_strength
-        self.weight_matrix += -self.step_size * gradient_weight
+        self.gradient_weight += self.weight_matrix*self.reg_strength
 
-        self.bias += -np.sum(gradient_score)
+        self.bias_gradient += np.sum(gradient_score)
 
         gradient_for_next_layer = np.dot(gradient_score, self.weight_matrix.T)
         

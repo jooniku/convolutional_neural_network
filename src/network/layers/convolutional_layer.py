@@ -16,9 +16,12 @@ class ConvolutionalLayer:
         The weights are initialized to small random numbers.
         """
         # create filter using numbers from numpys samples of "standard normal" distribution
-        self.filters = [0.001 + 0.01 * np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
+        self.filters = [0.01 * np.random.randn(self.filter_size, self.filter_size) * np.sqrt(2.0 / self.filter_size)
                         for i in range(self.num_of_filters)]
+
         self.bias_vector = [0.01 for i in range(self.num_of_filters)]
+
+
 
     def _add_padding(self, image: np.array):
         """Adds zero-padding for the image to make sure the
@@ -31,8 +34,10 @@ class ConvolutionalLayer:
         Returns:
             _type_: padded image
         """
-        needed_padding = int(np.ceil(((self.stride_length - 1)*self.conv_in_shape[1]
-                                  -self.stride_length+self.filter_size)/2))
+        #needed_padding = int(np.ceil(((self.stride_length - 1)*self.conv_in_shape[1]
+        #                          -self.stride_length+self.filter_size)/2))
+        
+        needed_padding = (28 - len(image)) // 2
 
         return np.pad(image, pad_width=needed_padding)
 
@@ -45,6 +50,7 @@ class ConvolutionalLayer:
         Args:
             image (np.array): image to convolute
         """
+        images = np.array([self._add_padding(image) for image in images])
         self.received_inputs = images
 
         output_dim = int((images.shape[1]-self.filter_size)/self.stride_length) + 1
@@ -52,7 +58,7 @@ class ConvolutionalLayer:
         self.conv_in_shape = images.shape
         for filter in range(len(self.filters)):
             filter_output = self._convolute2d(
-                image=self._add_padding(images[filter]), filter=self.filters[filter], bias=self.bias_vector[filter])
+                image=images[filter], filter=self.filters[filter], bias=self.bias_vector[filter])
             output_image[filter] += filter_output
         
         return output_image
@@ -70,12 +76,21 @@ class ConvolutionalLayer:
         """
 
         output_image = []
+        """
+        for i in image:
+            for j in i:
+                if j > 0:
+                    print("@", end="")
+                else:
+                    print(".", end="")
+            print()
+        """
 
         filter_y_pos = 0
-        while filter_y_pos + self.filter_size <= self.conv_in_shape[1]:
+        while filter_y_pos + self.filter_size <= image.shape[0]:
             filter_x_pos = 0
             output_image_sublist = []  # these act as the rows in the output image
-            while filter_x_pos + self.filter_size <= self.conv_in_shape[2]:
+            while filter_x_pos + self.filter_size <= image.shape[1]:
                 local_area_sum = 0
                 for row in range(len(filter)):
                     for column in range(len(filter)):
@@ -87,11 +102,22 @@ class ConvolutionalLayer:
             filter_y_pos += self.stride_length
 
         output = np.array(output_image)
-
         return output
     
+    def update_parameters(self, batch_size, learning_rate):
 
-    def _backpropagation(self, gradient_input, step_size, regularization_strength):
+        self.gradient_filters /= batch_size
+        self.bias_gradients /= batch_size
+
+        for filter_i in range(len(self.filters)):
+            self.filters[filter_i] -= learning_rate*self.gradient_filters[filter_i]
+            self.bias_vector[filter_i] -= learning_rate * self.bias_gradients[filter_i]
+
+    def initialize_gradients(self):
+        self.gradient_filters = np.zeros_like(self.filters)
+        self.bias_gradients = np.zeros_like(self.bias_vector)
+
+    def _backpropagation(self, gradient_input, regularization_strength):
         """This function takes care of the backpropagation for the
         convolution layer. For each filter in the layer, it calls
         the _get_filter_gradient function to get the gradients for the filters
@@ -111,9 +137,10 @@ class ConvolutionalLayer:
                                                         received_input=self.received_inputs[filter_i])
             # Add L2 regularization
             gradient_filter += regularization_strength * self.filters[filter_i]
-            # Update weights
-            self.filters[filter_i] -= step_size*gradient_filter
-            self.bias_vector[filter_i] -= step_size * np.sum(gradient_input[filter_i])
+
+            self.gradient_filters[filter_i] += gradient_filter
+
+            self.bias_gradients[filter_i] += np.sum(gradient_input[filter_i])            
 
             gradient_output[filter_i] = d_out
 

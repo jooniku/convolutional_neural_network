@@ -6,23 +6,19 @@ class NonLinearity:
     The function is applied typically after a convolution.
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
         pass
 
     def _relu(self, images):
-        """Rectified linear unit (ReLU) function to increase
-        non-linearity.
-
-        Args:
-            value (int): value of position
-
-        Returns:
-            float : value, if it's greater than 0, else 0
+        """Leaky rectified linear unit (ReLU) function to increase
+        non-linearity. 
         """
+
         height, width = images[0].shape
         for filtered_img in range(len(images)):
             for row in range(height):
                 for col in range(width):
-                    images[filtered_img][row][col] = max(0.0, images[filtered_img][row][col])
+                    if images[filtered_img][row][col] < 0:
+                        images[filtered_img][row][col] *= 0.001
 
         return images

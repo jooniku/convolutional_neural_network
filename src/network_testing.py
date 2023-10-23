@@ -30,12 +30,12 @@ if False:
 
     print(max(hyperparameters))
 
-if True:
+if False:
     nn = NeuralNetwork()
     start_time = time.time()
     nn._train_network()
     training_time = time.time() - start_time
-    test_cases = [i for i in range(2)]
+    test_cases = [i for i in range(5)]
 
     result = 0
     for test in test_cases:
@@ -43,10 +43,10 @@ if True:
         if prediction == training_labels[test]:
             result += 1
 
-    print("Accuracy:", (result / 2)*100, "%, ",
+    print("Accuracy:", (result / 5)*100, "%, ",
           "Training time", training_time, "seconds")
 
-if False:
+if True:
     nn = NeuralNetwork()
     start_time = time.time()
     nn._train_network()
