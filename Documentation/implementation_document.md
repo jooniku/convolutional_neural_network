@@ -6,6 +6,16 @@
 - Later user can customize the neural network e.g. size of kernels, pooling functions etc.
 - User will not have direct access to the workings of the network and all inner functions/methods are hidden
 
+## Use of LLMs
+- ChatGPT3.5 has been used to help understand some concepts regarding backpropagation and testing etc.
+- All code is written by myself
+- Architecture is designed and implemented by myself
+
+## Sources
+Here are the main sources for the project
+- [Convolutional Neural Networks from the ground up](https://towardsdatascience.com/convolutional-neural-networks-from-the-ground-up-c67bb41454e1)
+- [Convolutional Neural Networks for Visual Recognition](https://cs231n.github.io/)
+
 ## Architecture of the CNN
 - Has an input layer, two convolutional layers with non-linearity functions and a pooling layer proceeded by a fully connected layer using softmax
 
