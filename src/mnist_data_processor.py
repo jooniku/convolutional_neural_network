@@ -1,5 +1,4 @@
 import idx2numpy
-import numpy as np
 
 """This file takes the MNIST dataset files
 and converts the data to a 28x28 numpy array (matrix) that the network can use.

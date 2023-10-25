@@ -3,20 +3,13 @@ import numpy as np
 
 class Classifier:
 
-    def __init__(self, learning_step_size, reg_strength) -> None:
-        self.learning_step_size = learning_step_size
-        self.regularization_strength = reg_strength
+    def __init__(self):
+        pass
 
-    def _compute_softmax_probabilities(self, image):
+    def compute_probabilities(self, image):
         """This function computes the probabilities
         for each class using the softmax function.
         Works as the final layer.
-
-        Args:
-            image : Result array from FC layer
-
-        Returns:
-            probabilities : Probabilities of classes
         """
         # for numerical stability
         image -= np.max(image)
@@ -27,7 +20,7 @@ class Classifier:
 
         return probabilities
 
-    def _compute_cross_entropy_loss(self, probabilities, label):
+    def compute_loss(self, probabilities, label):
         """This function computes the cross-entropy loss
         for the batch of images. 
 
@@ -39,19 +32,12 @@ class Classifier:
             Loss : Total loss over the complete batch
         """
         loss = -np.log(probabilities[label])
-        
+
         return loss
 
-    def _compute_gradients(self, probabilities, label):
+    def compute_gradients(self, probabilities, label):
         """This function computes the gradients
         of the batch. 
-
-        Args:
-            probabilities (_type_): _description_
-            labels (_type_): _description_
-
-        Returns:
-            _type_: _description_
         """
         probabilities[label] -= 1
 

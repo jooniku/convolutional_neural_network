@@ -21,7 +21,7 @@ class TestPoolingLayer(unittest.TestCase):
                              [3, 1, 1, 1, 1, 1, 1],
                              [3, 4, 52, 5, 7, 5, 4]]])
 
-        test_pool = pool._average_pooling(test_img)
+        test_pool = pool.average_pooling(test_img)
 
         correct_pooling = np.array([[[13., 14., 15., 69., 76., 23.],
                                     [13., 11., 12., 68., 71., 15.],
@@ -39,9 +39,9 @@ class TestPoolingLayer(unittest.TestCase):
         output_shape = 13
 
         grad = np.ones((1, 12, 12))
-        
-        out = pool._backpropagation_average_pooling(grad, output_shape)
 
-        print(out)
+        out = pool.backpropagation_average_pooling(grad, output_shape)
 
-        self.assertEqual(1, 0)
+        correct_out = np.ones((1, 13, 13))
+
+        self.assertEqual(correct_out.shape, out.shape)

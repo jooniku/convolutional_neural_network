@@ -1,6 +1,8 @@
 import unittest
 import numpy as np
 from src.network.layers.convolutional_layer import ConvolutionalLayer
+from src.network.layers.fully_connected_layer import FullyConnectedLayer
+from src.network.layers.classifier import Classifier
 from src.mnist_data_processor import training_images, training_labels
 
 
@@ -9,6 +11,7 @@ class TestConvolutionalLayer(unittest.TestCase):
     def setUp(self) -> None:
         self.training_image = training_images[2]
         self.training_label = training_labels[2]
+
 
     def test_convolution_works_correctly(self):
         # using hand-calculated convolution
@@ -34,55 +37,58 @@ class TestConvolutionalLayer(unittest.TestCase):
         convoluted_img = conv_layer._convolute2d(test_img, filter, bias)
 
         self.assertEqual(np.sum(convoluted_img), np.sum(correct_result))
-    
 
-    def test_backpropagation_is_correct(self):
+
+    def test_gradient_check_for_conv_layer(self):
         conv_layer = ConvolutionalLayer(
-            num_of_filters=2, filter_size=3, stride_length=2)
-        conv_layer.bias_vector = np.array([1, 2])
-        conv_layer.filters = [np.array([[1, 1, 1],
-                           [1, 0, 0],
-                           [0, -1, -1]]), 
-                           np.array([[2, 2, 2],
-                           [2, 0, 0],
-                           [0, -2, -2]])]
+            num_of_filters=1, filter_size=3, stride_length=2)
+        conv_layer.bias_vector = np.array([0, 0])
 
-        
+        #conv_layer.filters = np.array([[[1., 1., 1.],
+        #                                [1., 0., 0.],
+        #                                [0., -1., -1.]]])
+
         images = np.array([[[0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 2, 0, 0, 2, 0],
-                             [0, 0, 1, 0, 1, 2, 0],
-                             [0, 1, 0, 2, 0, 1, 0],
-                             [0, 1, 2, 1, 0, 2, 0],
-                             [0, 2, 1, 0, 1, 2, 0],
-                             [0, 0, 0, 0, 0, 0, 0]],
-                             [[0, 0, 0, 0, 0, 0, 0],
-                             [0, 0, 2, 0, 0, 2, 0],
-                             [0, 0, 1, 0, 1, 2, 0],
-                             [0, 1, 0, 2, 0, 1, 0],
-                             [0, 1, 2, 1, 0, 2, 0],
-                             [0, 2, 1, 0, 1, 2, 0],
-                             [0, 0, 0, 0, 0, 0, 0]]])
-        
-        
+                            [0, 0, 2, 0, 0, 2, 0],
+                            [0, 0, 1, 0, 1, 2, 0],
+                            [0, 1, 0, 2, 0, 1, 0],
+                            [0, 1, 2, 1, 0, 2, 0],
+                            [0, 2, 1, 0, 1, 2, 0],
+                            [0, 0, 0, 0, 0, 0, 0]]])        
 
-        output_dim = int((images.shape[1]-conv_layer.filter_size)/conv_layer.stride_length) + 1
-        output_image = np.zeros((conv_layer.num_of_filters, output_dim, output_dim))
-        conv_layer.conv_in_shape = images.shape
-        for filter in range(len(conv_layer.filters)):
-            filter_output = conv_layer._convolute2d(
-                image=images[filter], filter=conv_layer.filters[filter], bias=conv_layer.bias_vector[filter])
-            output_image[filter] += filter_output
+        fc = FullyConnectedLayer(10, (1, 13, 13))
+        classifier = Classifier()
 
-                        
-        gradients = np.array([[[1., 2., 3.],
-                               [1., 2., 3.],
-                               [1., 2., 3.]],
-                               [[4., 5., 6.],
-                               [4., 5., 6.],
-                               [4., 5., 6.]]])
+        neutral = conv_layer.add_2d_convolution(images)
+        neutral = fc.process(neutral)
+        neutral = classifier.compute_probabilities(neutral)
+        neutral = classifier.compute_gradients(neutral, 1)
+
+        numerical_gradients = np.zeros_like(conv_layer.filters)
+        for i in range(len(conv_layer.filters[0])):
+            for j in range(len(conv_layer.filters[0][i])):
+                conv_layer.filters[0][i][j] -= 1e-7
+                output_neg = conv_layer.add_2d_convolution(images)
+                conv_layer.filters[0][i][j] += 2*1e-7
+                output_pos = conv_layer.add_2d_convolution(images)
         
-        dout = conv_layer._backpropagation(gradients, 1.0, 0.1)
-        print(conv_layer.filters)
+                neg = fc.process(output_neg)
+                pos = fc.process(output_pos)
 
-        self.assertEqual(1, 0)
-    
+                neg_prob = classifier.compute_probabilities(neg)
+                pos_prob = classifier.compute_probabilities(pos)
+
+                numerical_gradients[0][i][j] = (classifier.compute_loss(pos_prob, 1) - classifier.compute_loss(neg_prob, 1)) / (2 * 1e-7)
+
+        conv_layer.initialize_gradients()
+        fc.initialize_gradients()
+
+        conv_layer.backpropagation(fc.backpropagation(neutral, 0), 0)
+        analytical_gradients = conv_layer.gradient_filters
+
+        relative_error = abs(numerical_gradients - analytical_gradients) / (abs(numerical_gradients) + abs(analytical_gradients))[0]
+
+        accumulated_error = np.sum(relative_error)
+        print(accumulated_error)
+
+        self.assertGreaterEqual(9*1e-6, accumulated_error)
