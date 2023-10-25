@@ -3,13 +3,20 @@
 ### How is the program tested
 - Testing is done with Unittests
 - When appropriate, varied inputs are used
+- Computing functions are tested with correct, hand-computed results
 - The dataset and data extraction from it is __not__ tested
+- The app that the user interacts with is __not__ tested
+
+### Other tests
+- Network can achieve 0-loss with a single input. It is tested within the unittests.
+- Gradient checks are performed (within unittests) to have a high probability of correct backpropagation
 
 ### Code quality
 - Pylint is used to check code quality
 
 ### Test coverage
-- Currently the tests cover 100% of functions/methods that are finished or atleast are in working condition
+- Test coverage is 90 %.
+- Test coverage doesn't seem to be the best indicator of a working project with neural networks.
 
 ### Test report
 ![coverage report](coverage_report.png)
