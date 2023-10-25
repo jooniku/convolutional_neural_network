@@ -23,10 +23,10 @@ class NeuralNetwork:
                  stride_length=2,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=0.0005,
-                 epochs=1,
+                 learning_rate=0.0008,
+                 epochs=2,
                  reg_strength=0.001,
-                 batch_size=1,
+                 batch_size=64,
                  num_of_classes=10):
 
         # hyperparameter initialization here
@@ -214,6 +214,7 @@ class NeuralNetwork:
                 self._plot_loss()
 
             print("epoch:", epoch)
+            self.learning_rate *= 0.5
         print("Network training complete")
 
         if save_network:
