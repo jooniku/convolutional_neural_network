@@ -17,6 +17,7 @@
 ### Test coverage
 - Test coverage is 90 %.
 - Test coverage doesn't seem to be the best indicator of a working project with neural networks.
+- Therefore the other tests have been created.
 
 ### Test report
-![coverage report](coverage_report.png)
+![coverage report](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/images/coverage_report.png)
