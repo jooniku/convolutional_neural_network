@@ -11,7 +11,7 @@ class TestPoolingLayer(unittest.TestCase):
     def test_average_pooling_works_correctly(self):
         # hand pooled values, delta represents error threshold
 
-        pool = PoolingLayer(kernel_size=2)
+        pool = PoolingLayer(kernel_size=2, stride=1)
 
         test_img = np.array([[[2, 4, 5, 3, 6, 8, 7],
                              [5, 2, 3, 4, 56, 6, 2],
@@ -35,7 +35,7 @@ class TestPoolingLayer(unittest.TestCase):
                                np.sum(test_pool), delta=0.05)
 
     def test_backprop_avg_pooling_is_correct(self):
-        pool = PoolingLayer(kernel_size=2)
+        pool = PoolingLayer(kernel_size=2, stride=1)
         output_shape = 13
 
         grad = np.ones((1, 12, 12))

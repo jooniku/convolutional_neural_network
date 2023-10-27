@@ -32,6 +32,6 @@ class TestNeuralNetwork(unittest.TestCase):
         nn.training_data = np.hstack((images, labels))
 
         nn.train_network(save_network=False)
-        latest_loss = nn.cost[-1]
+        latest_loss = nn.loss_values[-1]
 
         self.assertEqual(0, latest_loss)

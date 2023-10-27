@@ -6,36 +6,9 @@ class PoolingLayer:
     Condences the result from convolution layer and non-linearity function. 
     """
 
-    def __init__(self, kernel_size):
+    def __init__(self, kernel_size, stride):
         self.pooling_kernel_size = kernel_size
-        self.stride_length = 1
-
-    def max_pooling(self, image: np.array):
-        """Max pooling algorithm. Currently not tested with
-        different kernel sizes or stride lengths. 
-        """
-        pooled_image = []
-        kernel_y_pos = 0
-        while kernel_y_pos <= (len(image) - self.pooling_kernel_size):
-            pooled_img_sublist = []
-            kernel_x_pos = 0
-            while kernel_x_pos <= (len(image[0]) - self.pooling_kernel_size):
-                maximum_value = -np.Infinity
-
-                for row in range(self.pooling_kernel_size):
-                    for column in range(self.pooling_kernel_size):
-                        maximum_value = max(
-                            maximum_value, image[kernel_y_pos+row][kernel_x_pos+column])
-
-                kernel_x_pos += self.stride_length
-                pooled_img_sublist.append(maximum_value)
-
-            kernel_y_pos += self.stride_length
-            pooled_image.append(pooled_img_sublist)
-
-        layer_activation = np.array(pooled_image)
-
-        return layer_activation
+        self.stride_length = stride
 
     def average_pooling(self, images):
         """Computes the average pooling for a given input.
@@ -90,3 +63,32 @@ class PoolingLayer:
             output.append(gradients)
 
         return np.array(output)
+
+
+
+    def max_pooling(self, image: np.array):
+        """Max pooling algorithm. Currently not tested with
+        different kernel sizes or stride lengths. 
+        """
+        pooled_image = []
+        kernel_y_pos = 0
+        while kernel_y_pos <= (len(image) - self.pooling_kernel_size):
+            pooled_img_sublist = []
+            kernel_x_pos = 0
+            while kernel_x_pos <= (len(image[0]) - self.pooling_kernel_size):
+                maximum_value = -np.Infinity
+
+                for row in range(self.pooling_kernel_size):
+                    for column in range(self.pooling_kernel_size):
+                        maximum_value = max(
+                            maximum_value, image[kernel_y_pos+row][kernel_x_pos+column])
+
+                kernel_x_pos += self.stride_length
+                pooled_img_sublist.append(maximum_value)
+
+            kernel_y_pos += self.stride_length
+            pooled_image.append(pooled_img_sublist)
+
+        layer_activation = np.array(pooled_image)
+
+        return layer_activation

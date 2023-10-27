@@ -32,7 +32,7 @@ class FullyConnectedLayer:
         bias for the layer.
         """
         size = self.input_image_shape[0]*self.input_image_shape[1]**2
-        #size = 8 * 12 * 12
+        #size = 10 * 6 * 6
         self.weight_matrix = 0.01 * \
             np.random.randn(size, self.number_of_classes) \
             * np.sqrt(2.0 / size)
@@ -44,16 +44,37 @@ class FullyConnectedLayer:
         """
         self.gradient_weight = np.zeros_like(self.weight_matrix)
         self.bias_gradient = np.zeros_like(self.bias)
+        self.weight_mean_grad = np.zeros_like(self.weight_matrix)
+        self.weight_grad_variance = np.zeros_like(self.weight_matrix)
+        self.bias_mean_grad = np.zeros_like(self.bias)
+        self.bias_grad_variance = np.zeros_like(self.bias)
 
-    def update_parameters(self, batch_size, learning_rate):
+    def update_parameters(self, batch_size, learning_rate, beta1, beta2, iterations):
         """Update the parameters of the layer with
         stored gradients accumulated within batches.
         """
         self.gradient_weight /= batch_size
         self.bias_gradient /= batch_size
 
-        self.weight_matrix -= learning_rate*self.gradient_weight
-        self.bias -= learning_rate*self.bias_gradient
+        # Update moment vectors
+        self.weight_mean_grad = beta1*self.weight_mean_grad \
+        + (1-beta1)*self.gradient_weight
+        self.weight_grad_variance = beta2*self.weight_grad_variance \
+        + (1-beta2) * self.gradient_weight**2
+        # Take the bias-corrected variables
+        weight_mhat = self.weight_mean_grad / (1 - beta1**(iterations+1))
+        weight_vhat = self.weight_grad_variance / (1 - beta2**(iterations+1))
+        # Update variable
+        self.weight_matrix -= learning_rate*weight_mhat / (np.sqrt(weight_vhat)+1e-7)
+
+        # Same for bias
+        self.bias_mean_grad = beta1*self.bias_mean_grad \
+        + (1-beta1)*self.bias_gradient
+        self.bias_grad_variance = beta2*self.bias_grad_variance \
+        + (1-beta2) * self.bias_gradient**2            
+        bias_mhat = self.bias_mean_grad / (1 - beta1**(iterations+1))
+        bias_vhat = self.bias_grad_variance / (1 - beta2**(iterations+1))
+        self.bias -= learning_rate*bias_mhat / (np.sqrt(bias_vhat)+1e-7)
 
     def backpropagation(self, gradient_score, reg_strength):
         """Updates the weights in the weight matrix

@@ -81,7 +81,7 @@ class ConvolutionalLayer:
         output = np.array(output_image)
         return output
 
-    def update_parameters(self, batch_size, learning_rate):
+    def update_parameters(self, batch_size, learning_rate, beta1, beta2, iterations):
         """Updates the parameters with stored gradients
         from the backpropagation process.
         """
@@ -89,17 +89,40 @@ class ConvolutionalLayer:
         self.bias_gradients /= batch_size
 
         for filter_i in range(len(self.filters)):
-            self.filters[filter_i] -= learning_rate * \
-                self.gradient_filters[filter_i]
-            self.bias_vector[filter_i] -= learning_rate * \
-                self.bias_gradients[filter_i]
+            # Update moment vectors
+            self.filter_mean_grad[filter_i] = beta1*self.filter_mean_grad[filter_i] \
+            + (1-beta1)*self.gradient_filters[filter_i]
+            self.filter_grad_variance[filter_i] = beta2*self.filter_grad_variance[filter_i] \
+            + (1-beta2) * self.gradient_filters[filter_i]**2
+            # Take the bias-corrected variables
+            filter_mhat = self.filter_mean_grad[filter_i] / (1 - beta1**(iterations+1))
+            filter_vhat = self.filter_grad_variance[filter_i] / (1 - beta2**(iterations+1))
+            # Update variable
+            self.filters[filter_i] -= learning_rate*filter_mhat / (np.sqrt(filter_vhat)+1e-7)
+
+            # Same for bias
+            self.bias_mean_grad[filter_i] = beta1*self.bias_mean_grad[filter_i] \
+            + (1-beta1)*self.bias_gradients[filter_i]
+            self.bias_grad_variance[filter_i] = beta2*self.bias_grad_variance[filter_i] \
+            + (1-beta2) * self.bias_gradients[filter_i]**2            
+            bias_mhat = self.bias_mean_grad[filter_i] / (1 - beta1**(iterations+1))
+            bias_vhat = self.bias_grad_variance[filter_i] / (1 - beta2**(iterations+1))
+            self.bias_vector[filter_i] -= learning_rate*bias_mhat / (np.sqrt(bias_vhat)+1e-7)
+
 
     def initialize_gradients(self):
         """Initialize the gradients for
         the backpropagation process.
+        The update follows the Adam optimization.
         """
         self.gradient_filters = np.zeros_like(self.filters)
         self.bias_gradients = np.zeros_like(self.bias_vector)
+
+        self.filter_mean_grad = np.zeros_like(self.filters)
+        self.filter_grad_variance = np.zeros_like(self.filters)
+
+        self.bias_mean_grad = np.zeros_like(self.bias_vector)
+        self.bias_grad_variance = np.zeros_like(self.bias_vector)
 
     def backpropagation(self, gradient_input, regularization_strength):
         """This function takes care of the backpropagation for the
