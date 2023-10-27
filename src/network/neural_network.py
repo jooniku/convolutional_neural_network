@@ -23,7 +23,7 @@ class NeuralNetwork:
                  stride_length=2,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=0.01,
+                 learning_rate=0.001,
                  epochs=1,
                  reg_strength=0,
                  batch_size=500,
@@ -141,7 +141,7 @@ class NeuralNetwork:
                     prev_validation_accuracy = val_accuracy
 
                     # save network incase overfitting
-                    if prev_validation_accuracy > 80:
+                    if val_accuracy > 98:
                         self._save_network()
                         self._save_plots()
                 
@@ -308,7 +308,7 @@ class NeuralNetwork:
 
         if save_network:
             self._save_network()
-        self._save_plots()
+            self._save_plots()
     
     def get_test_data(self):
         """Passes the test data.

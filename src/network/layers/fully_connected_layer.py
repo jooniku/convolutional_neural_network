@@ -94,6 +94,7 @@ class FullyConnectedLayer:
 
         self.bias_gradient += np.sum(gradient_score)
 
-        gradient_for_next_layer = np.dot(gradient_score, self.weight_matrix.T)
+        gradient_for_next_layer = np.dot(gradient_score, 
+                                         self.weight_matrix.T).reshape(self.input_image_shape)
 
-        return gradient_for_next_layer.reshape(self.input_image_shape)
+        return gradient_for_next_layer

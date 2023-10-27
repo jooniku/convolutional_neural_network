@@ -85,10 +85,13 @@ class TestConvolutionalLayer(unittest.TestCase):
 
         conv_layer.backpropagation(fc.backpropagation(neutral, 0), 0)
         analytical_gradients = conv_layer.gradient_filters
+        print("ana", analytical_gradients)
+        print("num", numerical_gradients)
 
         relative_error = abs(numerical_gradients - analytical_gradients) / (abs(numerical_gradients) + abs(analytical_gradients))[0]
 
-        accumulated_error = np.sum(relative_error)
+        accumulated_error = np.mean(relative_error)
+        #accumulated_error = np.sum(relative_error)
         print(accumulated_error)
 
-        self.assertGreaterEqual(9*1e-5, accumulated_error)
+        self.assertGreaterEqual(1*1e-6,accumulated_error)

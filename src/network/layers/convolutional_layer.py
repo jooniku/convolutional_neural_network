@@ -179,4 +179,7 @@ class ConvolutionalLayer:
             current_y_pos += self.stride_length
             output_y_pos += 1
 
+        gradient_filter /= self.num_of_filters
+        gradient_output /= self.num_of_filters
+
         return gradient_filter, gradient_output
