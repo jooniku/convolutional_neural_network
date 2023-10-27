@@ -8,7 +8,7 @@ The goal of the project is to create a tool to recognize and classify hand-writt
 - [Implementation document](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/implementation_document.md)
 - [Changelog](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/changelog.md)
 
-## Installation (currently does not work)
+## Installation
 Poetry must be installed on the system.
 
 1. Install dependencies:
@@ -19,12 +19,6 @@ poetry install
 ```bash
 poetry run invoke start
 ```
-Rudimentary testing of the network can be done with
-```bash
-poetry run invoke test-network
-```
-However, the learning process is very slow and with hyperparameter adjustments can get more significant drops in loss.
-
 
 ## Testing
 
