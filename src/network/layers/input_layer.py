@@ -26,7 +26,7 @@ class InputLayer:
     def _random_rotation(self, image):
         """Rotate image within angle.
         """
-        angle = np.random.uniform(-30, 30)
+        angle = np.random.uniform(-20, 20)
         return np.rot90(image, k=int(angle/90))
 
     def preprocess_data(self, images):
