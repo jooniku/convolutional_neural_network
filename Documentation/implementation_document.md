@@ -7,7 +7,7 @@
 - User will not have direct access to the workings of the network and all inner functions/methods are hidden
 
 ## Use of LLMs
-- ChatGPT3.5 has been used to help understand some concepts regarding backpropagation and testing etc.
+- ChatGPT3.5 has been used to help understand some concepts regarding backpropagation, plotting data and testing etc.
 - All code is written by myself
 - Architecture is designed and implemented by myself
 
