@@ -23,10 +23,10 @@ class NeuralNetwork:
                  stride_length=2,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=0.001,
+                 learning_rate=0.01,
                  epochs=1,
-                 reg_strength=0.0001,
-                 batch_size=150,
+                 reg_strength=0,
+                 batch_size=500,
                  num_of_classes=10,
                  beta1=0.9,
                  beta2=0.999):
@@ -136,13 +136,14 @@ class NeuralNetwork:
                 self._update_network_parameters()
 
                 # Every 2nd iteration test validation accuracy
-                if batch_iterations % 4 == 0:
+                if batch_iterations % 3 == 0:
                     val_accuracy = self._test_validation_accuracy()
                     prev_validation_accuracy = val_accuracy
 
                     # save network incase overfitting
-                    if prev_validation_accuracy > 85:
+                    if prev_validation_accuracy > 80:
                         self._save_network()
+                        self._save_plots()
                 
                 self.loss_values.append(average_loss)
                 self.batch_values.append(batch_iterations)

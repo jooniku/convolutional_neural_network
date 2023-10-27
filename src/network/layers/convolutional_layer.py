@@ -109,7 +109,6 @@ class ConvolutionalLayer:
             bias_vhat = self.bias_grad_variance[filter_i] / (1 - beta2**(iterations+1))
             self.bias_vector[filter_i] -= learning_rate*bias_mhat / (np.sqrt(bias_vhat)+1e-7)
 
-
     def initialize_gradients(self):
         """Initialize the gradients for
         the backpropagation process.
