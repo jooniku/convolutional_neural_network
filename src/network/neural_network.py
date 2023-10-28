@@ -24,9 +24,9 @@ class NeuralNetwork:
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
                  learning_rate=0.001,
-                 epochs=1,
+                 epochs=2,
                  reg_strength=0,
-                 batch_size=500,
+                 batch_size=250,
                  num_of_classes=10,
                  beta1=0.9,
                  beta2=0.999):
@@ -136,7 +136,7 @@ class NeuralNetwork:
                 self._update_network_parameters()
 
                 # Every 2nd iteration test validation accuracy
-                if batch_iterations % 3 == 0:
+                if batch_iterations % 1 == 0:
                     val_accuracy = self._test_validation_accuracy()
                     prev_validation_accuracy = val_accuracy
 
@@ -152,8 +152,10 @@ class NeuralNetwork:
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
 
+                if batch_iterations % 2 ==0:
+                    self.iterations += 1
                 batch_iterations += 1
-                self.iterations += 1
+
             print("epoch:", epoch)
         self._stop_training(save_network)
 
@@ -183,7 +185,8 @@ class NeuralNetwork:
         """
         gradient_input = self.fully_connected_layer.backpropagation(
             gradient_score=gradients, reg_strength=self.regularization_strength)
-        output_shape = self.convolutional_layers[-1].received_inputs.shape[1]
+        
+        output_shape = 13
 
         gradient_input = self.pooling_layer.backpropagation_average_pooling(
             gradient_input, output_shape)
@@ -216,9 +219,9 @@ class NeuralNetwork:
         self._get_validation_data()
 
         self.non_linearity_function = NonLinearity()._relu
-        self.pooling_layer = PoolingLayer(kernel_size=2, stride=2)
+        self.pooling_layer = PoolingLayer(kernel_size=2, stride=1)
         self.fully_connected_layer = FullyConnectedLayer(
-            self.num_of_classes, (self.num_of_filters_in_conv_layer, 6, 6)) # if pooling stride 2
+            self.num_of_classes, (self.num_of_filters_in_conv_layer, 12, 12)) # if pooling stride 1
         self.classifier = Classifier()
 
         self._create_convolutional_layers()
@@ -250,9 +253,11 @@ class NeuralNetwork:
         self.convolutional_layers[1].filters = saved_data["filters2"]
         self.convolutional_layers[1].bias_vector = saved_data["biases2"]
 
-        self.fully_connected_layer.weight_matrix = saved_data["fc_weight"]
-        self.fully_connected_layer.bias = saved_data["fc_bias"]
+        self.fully_connected_layer.weight_matrixes[0] = saved_data["fc_weight1"]
+        self.fully_connected_layer.biases[0] = saved_data["fc_bias1"]
 
+        self.fully_connected_layer.weight_matrixes[1] = saved_data["fc_weight1"]
+        self.fully_connected_layer.biases[1] = saved_data["fc_bias1"]
 
         print("Network loaded successfully")
 
@@ -278,8 +283,10 @@ class NeuralNetwork:
                  biases1=self.convolutional_layers[0].bias_vector,
                  filters2=self.convolutional_layers[1].filters,
                  biases2=self.convolutional_layers[1].bias_vector,
-                 fc_weight=self.fully_connected_layer.weight_matrix,
-                 fc_bias=self.fully_connected_layer.bias,
+                 fc_weight1=self.fully_connected_layer.weight_matrixes[0],
+                 fc_bias1=self.fully_connected_layer.biases[0],
+                 fc_weight2=self.fully_connected_layer.weight_matrixes[1],
+                 fc_bias2=self.fully_connected_layer.biases[1],
                  hyperparameters=hyperparams)
 
         print("Network saved successfully")

@@ -58,6 +58,8 @@ class TestConvolutionalLayer(unittest.TestCase):
 
         fc = FullyConnectedLayer(10, (1, 13, 13))
         classifier = Classifier()
+        conv_layer.initialize_gradients()
+        fc.initialize_gradients()
 
         neutral = conv_layer.add_2d_convolution(images)
         neutral = fc.process(neutral)
@@ -80,8 +82,6 @@ class TestConvolutionalLayer(unittest.TestCase):
 
                 numerical_gradients[0][i][j] = (classifier.compute_loss(pos_prob, 1) - classifier.compute_loss(neg_prob, 1)) / (2 * 1e-7)
 
-        conv_layer.initialize_gradients()
-        fc.initialize_gradients()
 
         conv_layer.backpropagation(fc.backpropagation(neutral, 0), 0)
         analytical_gradients = conv_layer.gradient_filters

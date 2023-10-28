@@ -179,7 +179,30 @@ class ConvolutionalLayer:
             current_y_pos += self.stride_length
             output_y_pos += 1
 
-        gradient_filter /= self.num_of_filters
-        gradient_output /= self.num_of_filters
-
         return gradient_filter, gradient_output
+
+    def backpropagation1(self, gradient_input, regularization_strength):
+        """This function takes care of the backpropagation for the
+        convolution layer. For each filter in the layer, it calls
+        the _get_filter_gradient function to get the gradients for the filters
+        and then updates the filters.
+        """
+        gradient_output = np.zeros(self.conv_in_shape)
+        for filter_i in range(len(self.filters)):
+            current_y = output_y = 0
+            while current_y + self.filter_size <= self.conv_in_shape[2]:
+                current_x = output_x = 0
+                while current_x + self.filter_size <= self.conv_in_shape[1]:
+
+                    self.gradient_filters[filter_i] += gradient_input[filter_i, output_y, output_x]\
+                         * self.received_inputs[filter_i,current_y:current_y+self.filter_size,
+                                                 current_x:current_x+self.filter_size]
+                    gradient_output[filter_i, current_y:current_y+self.filter_size]\
+                    *gradient_input[filter_i, output_y, output_x] * self.filters[filter_i]
+                    current_x += self.stride_length
+                    output_x += 1
+                current_y += self.stride_length
+                output_y += 1
+            self.bias_gradients[filter_i] += np.sum(gradient_input[filter_i])
+
+        return gradient_output

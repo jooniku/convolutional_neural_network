@@ -41,8 +41,8 @@ class InputLayer:
         """
         images = self.preprocess_data(self.training_images)
 
-        #images = images[0:100]
-        #labels = training_labels[0:100]
+        #images = images[0:1000]
+        #labels = training_labels[0:1000]
 
         images = images.reshape(images.shape[0], images.shape[1]**2)
         labels = training_labels.reshape(training_labels.shape[0], 1)
