@@ -47,22 +47,21 @@ class PoolingLayer:
         Gives the average pooling value for the whole 
         local are from which it is computed from.
         """
-        gradients = np.zeros((gradient_input.shape[0], output_shape, output_shape))
+        gradients = np.zeros(
+            (gradient_input.shape[0], output_shape, output_shape))
         height, width = gradient_input.shape[1], gradient_input.shape[2]
 
         for filter_i in range(gradient_input.shape[0]):
             num_of_contributing_pos = self.pooling_kernel_size**2
             for row in range(height):
                 for column in range(width):
-                    gradient_value = gradient_input[filter_i][row][column] 
+                    gradient_value = gradient_input[filter_i][row][column]
 
                     gradients[filter_i, row:row+self.pooling_kernel_size,
                               column:column+self.pooling_kernel_size]\
-                                  += gradient_value / self.pooling_kernel_size**2
+                        += gradient_value / self.pooling_kernel_size**2
 
         return gradients
-
-
 
     def max_pooling(self, image: np.array):
         """Max pooling algorithm. Currently not tested with

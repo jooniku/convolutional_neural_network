@@ -12,7 +12,6 @@ class TestConvolutionalLayer(unittest.TestCase):
         self.training_image = training_images[2]
         self.training_label = training_labels[2]
 
-
     def test_convolution_works_correctly(self):
         # using hand-calculated convolution
         conv_layer = ConvolutionalLayer(
@@ -38,13 +37,12 @@ class TestConvolutionalLayer(unittest.TestCase):
 
         self.assertEqual(np.sum(convoluted_img), np.sum(correct_result))
 
-
     def test_gradient_check_for_conv_layer(self):
         conv_layer = ConvolutionalLayer(
             num_of_filters=1, filter_size=3, stride_length=2)
         conv_layer.bias_vector = np.array([0, 0])
 
-        #conv_layer.filters = np.array([[[1., 1., 1.],
+        # conv_layer.filters = np.array([[[1., 1., 1.],
         #                                [1., 0., 0.],
         #                                [0., -1., -1.]]])
 
@@ -54,7 +52,7 @@ class TestConvolutionalLayer(unittest.TestCase):
                             [0, 1, 0, 2, 0, 1, 0],
                             [0, 1, 2, 1, 0, 2, 0],
                             [0, 2, 1, 0, 1, 2, 0],
-                            [0, 0, 0, 0, 0, 0, 0]]])        
+                            [0, 0, 0, 0, 0, 0, 0]]])
 
         fc = FullyConnectedLayer(10, (1, 13, 13))
         classifier = Classifier()
@@ -73,25 +71,26 @@ class TestConvolutionalLayer(unittest.TestCase):
                 output_neg = conv_layer.add_2d_convolution(images)
                 conv_layer.filters[0][i][j] += 2*1e-7
                 output_pos = conv_layer.add_2d_convolution(images)
-        
+
                 neg = fc.process(output_neg)
                 pos = fc.process(output_pos)
 
                 neg_prob = classifier.compute_probabilities(neg)
                 pos_prob = classifier.compute_probabilities(pos)
 
-                numerical_gradients[0][i][j] = (classifier.compute_loss(pos_prob, 1) - classifier.compute_loss(neg_prob, 1)) / (2 * 1e-7)
-
+                numerical_gradients[0][i][j] = (classifier.compute_loss(
+                    pos_prob, 1) - classifier.compute_loss(neg_prob, 1)) / (2 * 1e-7)
 
         conv_layer.backpropagation(fc.backpropagation(neutral, 0), 0)
         analytical_gradients = conv_layer.gradient_filters
         print("ana", analytical_gradients)
         print("num", numerical_gradients)
 
-        relative_error = abs(numerical_gradients - analytical_gradients) / (abs(numerical_gradients) + abs(analytical_gradients))[0]
+        relative_error = abs(numerical_gradients - analytical_gradients) / \
+            (abs(numerical_gradients) + abs(analytical_gradients))[0]
 
         accumulated_error = np.mean(relative_error)
-        #accumulated_error = np.sum(relative_error)
+        # accumulated_error = np.sum(relative_error)
         print(accumulated_error)
 
-        self.assertGreaterEqual(1*1e-6,accumulated_error)
+        self.assertGreaterEqual(1*1e-6, accumulated_error)

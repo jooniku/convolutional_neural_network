@@ -2,10 +2,12 @@ from src.network.neural_network import NeuralNetwork
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 class App:
     """This is the main program
     the user interacts with.
     """
+
     def __init__(self):
         self.nn = None
         self.test_images = None
@@ -15,7 +17,8 @@ class App:
         self._choose_network()
         # Run the rest of the program with trained network
         while True:
-            do = input("Test the network(1), visualize the network(2), choose a new network(3) or quit(4): ")
+            do = input(
+                "Test the network(1), visualize the network(2), choose a new network(3) or quit(4): ")
             if do == "1":
                 self.test_network()
             elif do == "2":
@@ -25,8 +28,6 @@ class App:
             elif do == "4":
                 break
         print()
-
-
 
     def _choose_network(self):
         setup = input("Load a pre-trained network(1) or train a network(2): ")
@@ -40,7 +41,8 @@ class App:
                 name = input("Specify filename: ")
                 print("Loading network...")
                 try:
-                    self.nn.load_saved_network(load_latest=False, filename=name)
+                    self.nn.load_saved_network(
+                        load_latest=False, filename=name)
                 except FileNotFoundError:
                     print("No such file...")
                     self._choose_network()
@@ -48,23 +50,31 @@ class App:
             self.setup_network()
 
     def setup_network(self):
-        custom = input("You can use default hyperparameters(1) or use custom ones(2): ")
+        custom = input(
+            "You can use default hyperparameters(1) or use custom ones(2): ")
         if custom == "1":
             self.nn = NeuralNetwork()
         elif custom == "2":
-            print("Select custom values for the network. Default values are shown in parentheses.")
+            print(
+                "Select custom values for the network. Default values are shown in parentheses.")
             learning_rate = float(input("Learning rate(0.001): "))
-            epochs = int(input("Number of iterations through the entire dataset(epochs)(2): "))
+            epochs = int(
+                input("Number of iterations through the entire dataset(epochs)(2): "))
             reg_strength = float(input("Regularization strength(0.0001): "))
             batch_size = int(input("Batch size(50): "))
-            num_of_classes = int(input("Number of classes in dataset(10 for MNIST): "))
+            num_of_classes = int(
+                input("Number of classes in dataset(10 for MNIST): "))
             print("Next two values are for Adam gradient descend optimization algorithm")
             beta1 = float(input("Beta 1(0.9): "))
             beta2 = float(input("Beta 2(0.999): "))
-            num_of_convolutional_layers = int(input("Number of convolutional layers(2): "))
-            num_of_filters_in_conv_layer = int(input("Number of filters in convolutional layer(10): "))
-            filter_size = int(input("Select convolutional layer filter size(3): "))
-            stride_length = int(input("Select convolutional layer stride length(2): "))
+            num_of_convolutional_layers = int(
+                input("Number of convolutional layers(2): "))
+            num_of_filters_in_conv_layer = int(
+                input("Number of filters in convolutional layer(10): "))
+            filter_size = int(
+                input("Select convolutional layer filter size(3): "))
+            stride_length = int(
+                input("Select convolutional layer stride length(2): "))
 
             self.nn = NeuralNetwork(filter_size, stride_length, num_of_convolutional_layers,
                                     num_of_filters_in_conv_layer, learning_rate, epochs,
@@ -74,7 +84,8 @@ class App:
 
     def test_network(self):
         self.test_images, self.test_labels = self.nn.get_test_data()
-        test_size = input("Do a quick test of 100 images(1), a medium test of 2 000 images(2) or a full test of 10 000 images(3): ")
+        test_size = input(
+            "Do a quick test of 100 images(1), a medium test of 2 000 images(2) or a full test of 10 000 images(3): ")
 
         if test_size == "1":
             self._quick_test(100)
@@ -82,14 +93,14 @@ class App:
             self._quick_test(2000)
         elif test_size == "3":
             self._full_test()
-    
+
     def _full_test(self):
         """Perform in-depth test
         for network accuracy.
         """
         class_accuracy = {}
         for i in range(self.nn.num_of_classes):
-            class_accuracy[str(i)] = [0, 0] # left is correct pred
+            class_accuracy[str(i)] = [0, 0]  # left is correct pred
 
         result = 0
         for num in range(len(self.test_images)):
@@ -109,10 +120,11 @@ class App:
         """
         class_accuracy = {}
         for i in range(self.nn.num_of_classes):
-            class_accuracy[str(i)] = [0, 0] # left is correct pred
+            class_accuracy[str(i)] = [0, 0]  # left is correct pred
 
         result = 0
-        nums = [np.random.randint(0, len(self.test_images)) for i in range(size)]
+        nums = [np.random.randint(0, len(self.test_images))
+                for i in range(size)]
 
         for num in nums:
             prediction = self.nn.predict(self.test_images[num])
@@ -140,13 +152,13 @@ class App:
         labels = [i for i in range(self.nn.num_of_classes)]
         percentages = []
         for i in range(self.nn.num_of_classes):
-        # get the percentage of correct pred for every class
+            # get the percentage of correct pred for every class
             # this class didn't appear in the test set
             if results[str(i)][1] == 0:
                 percentages.append(0.0)
                 continue
             percentages.append((results[str(i)][0] / results[str(i)][1])*100)
-        
+
         plt.bar(labels, percentages, tick_label=labels)
         plt.xlabel("Class Label")
         plt.ylabel("Correct predictions (%)")
@@ -154,7 +166,6 @@ class App:
         plt.show()
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     a = App()
     a.run()
-

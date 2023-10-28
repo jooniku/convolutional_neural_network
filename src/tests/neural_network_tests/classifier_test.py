@@ -3,6 +3,7 @@ import numpy as np
 from src.mnist_data_processor import training_images, training_labels
 from src.network.layers.classifier import Classifier
 
+
 class TestClassifier(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -52,4 +53,3 @@ class TestClassifier(unittest.TestCase):
             correct_sum += row
 
         self.assertAlmostEqual(grads_sum, correct_sum, 4)
-

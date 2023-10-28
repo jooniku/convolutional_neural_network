@@ -16,8 +16,8 @@ class ConvolutionalLayer:
         The weights are initialized to small random numbers.
         """
         self.filters = [np.random.randn(self.filter_size,
-                                         self.filter_size)
-                                           * np.sqrt(2.0 / self.filter_size*2)
+                                        self.filter_size)
+                        * np.sqrt(2.0 / self.filter_size*2)
                         for i in range(self.num_of_filters)]
 
         self.bias_vector = [0.01 for i in range(self.num_of_filters)]
@@ -91,23 +91,29 @@ class ConvolutionalLayer:
         for filter_i in range(len(self.filters)):
             # Update moment vectors
             self.filter_mean_grad[filter_i] = beta1*self.filter_mean_grad[filter_i] \
-            + (1-beta1)*self.gradient_filters[filter_i]
+                + (1-beta1)*self.gradient_filters[filter_i]
             self.filter_grad_variance[filter_i] = beta2*self.filter_grad_variance[filter_i] \
-            + (1-beta2) * self.gradient_filters[filter_i]**2
+                + (1-beta2) * self.gradient_filters[filter_i]**2
             # Take the bias-corrected variables
-            filter_mhat = self.filter_mean_grad[filter_i] / (1 - beta1**(iterations+1))
-            filter_vhat = self.filter_grad_variance[filter_i] / (1 - beta2**(iterations+1))
+            filter_mhat = self.filter_mean_grad[filter_i] / \
+                (1 - beta1**(iterations+1))
+            filter_vhat = self.filter_grad_variance[filter_i] / (
+                1 - beta2**(iterations+1))
             # Update variable
-            self.filters[filter_i] -= learning_rate*filter_mhat / (np.sqrt(filter_vhat)+1e-7)
+            self.filters[filter_i] -= learning_rate * \
+                filter_mhat / (np.sqrt(filter_vhat)+1e-7)
 
             # Same for bias
             self.bias_mean_grad[filter_i] = beta1*self.bias_mean_grad[filter_i] \
-            + (1-beta1)*self.bias_gradients[filter_i]
+                + (1-beta1)*self.bias_gradients[filter_i]
             self.bias_grad_variance[filter_i] = beta2*self.bias_grad_variance[filter_i] \
-            + (1-beta2) * self.bias_gradients[filter_i]**2            
-            bias_mhat = self.bias_mean_grad[filter_i] / (1 - beta1**(iterations+1))
-            bias_vhat = self.bias_grad_variance[filter_i] / (1 - beta2**(iterations+1))
-            self.bias_vector[filter_i] -= learning_rate*bias_mhat / (np.sqrt(bias_vhat)+1e-7)
+                + (1-beta2) * self.bias_gradients[filter_i]**2
+            bias_mhat = self.bias_mean_grad[filter_i] / \
+                (1 - beta1**(iterations+1))
+            bias_vhat = self.bias_grad_variance[filter_i] / \
+                (1 - beta2**(iterations+1))
+            self.bias_vector[filter_i] -= learning_rate * \
+                bias_mhat / (np.sqrt(bias_vhat)+1e-7)
 
     def initialize_gradients(self):
         """Initialize the gradients for
@@ -132,9 +138,9 @@ class ConvolutionalLayer:
         gradient_output = np.zeros(self.conv_in_shape)
         for filter_i in range(len(self.filters)):
             gradient_filter, d_out = self._get_filter_gradient(
-                            gradient_input=gradient_input[filter_i],
-                            filter=self.filters[filter_i],
-                            received_input=self.received_inputs[filter_i])
+                gradient_input=gradient_input[filter_i],
+                filter=self.filters[filter_i],
+                received_input=self.received_inputs[filter_i])
             # Add L2 regularization
             gradient_filter += regularization_strength * self.filters[filter_i]
 
@@ -163,7 +169,7 @@ class ConvolutionalLayer:
 
                 # gets a local region of the filters size
                 input_region = received_input[current_y_pos:current_y_pos +
-                                              filter_height, 
+                                              filter_height,
                                               current_x_pos:current_x_pos+filter_width]
                 region_gradient = gradient_input[output_y_pos,
                                                  output_x_pos] * input_region
@@ -172,7 +178,7 @@ class ConvolutionalLayer:
 
                 gradient_output[current_y_pos:current_y_pos+filter_height,
                                 current_x_pos:current_x_pos+filter_width] \
-                            += gradient_input[output_y_pos, output_x_pos] * filter
+                    += gradient_input[output_y_pos, output_x_pos] * filter
 
                 current_x_pos += self.stride_length
                 output_x_pos += 1
@@ -195,10 +201,10 @@ class ConvolutionalLayer:
                 while current_x + self.filter_size <= self.conv_in_shape[1]:
 
                     self.gradient_filters[filter_i] += gradient_input[filter_i, output_y, output_x]\
-                         * self.received_inputs[filter_i,current_y:current_y+self.filter_size,
-                                                 current_x:current_x+self.filter_size]
+                        * self.received_inputs[filter_i, current_y:current_y+self.filter_size,
+                                               current_x:current_x+self.filter_size]
                     gradient_output[filter_i, current_y:current_y+self.filter_size]\
-                    *gradient_input[filter_i, output_y, output_x] * self.filters[filter_i]
+                        * gradient_input[filter_i, output_y, output_x] * self.filters[filter_i]
                     current_x += self.stride_length
                     output_x += 1
                 current_y += self.stride_length
