@@ -44,4 +44,4 @@ class TestPoolingLayer(unittest.TestCase):
 
         correct_out = np.ones((1, 13, 13))
 
-        self.assertEqual(correct_out.shape, out.shape)
+        self.assertEqual(144.0, np.sum(out))

@@ -52,7 +52,6 @@ class PoolingLayer:
         height, width = gradient_input.shape[1], gradient_input.shape[2]
 
         for filter_i in range(gradient_input.shape[0]):
-            num_of_contributing_pos = self.pooling_kernel_size**2
             for row in range(height):
                 for column in range(width):
                     gradient_value = gradient_input[filter_i][row][column]

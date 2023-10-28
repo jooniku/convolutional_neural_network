@@ -101,7 +101,7 @@ class ConvolutionalLayer:
                 1 - beta2**(iterations+1))
             # Update variable
             self.filters[filter_i] -= learning_rate * \
-                filter_mhat / (np.sqrt(filter_vhat)+1e-7)
+                filter_mhat / (np.sqrt(filter_vhat)+1e-9)
 
             # Same for bias
             self.bias_mean_grad[filter_i] = beta1*self.bias_mean_grad[filter_i] \
@@ -113,7 +113,7 @@ class ConvolutionalLayer:
             bias_vhat = self.bias_grad_variance[filter_i] / \
                 (1 - beta2**(iterations+1))
             self.bias_vector[filter_i] -= learning_rate * \
-                bias_mhat / (np.sqrt(bias_vhat)+1e-7)
+                bias_mhat / (np.sqrt(bias_vhat)+1e-9)
 
     def initialize_gradients(self):
         """Initialize the gradients for

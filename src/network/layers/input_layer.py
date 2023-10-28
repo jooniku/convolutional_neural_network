@@ -11,8 +11,6 @@ class InputLayer:
 
     def __init__(self):
         self.training_images = self._perform_data_augmentation(training_images)
-        # self.mean = np.mean(self.training_images)
-        # self.sd = np.std(self.training_images)
 
     def _perform_data_augmentation(self, images):
         """Perform data augmentation 
@@ -29,24 +27,17 @@ class InputLayer:
         angle = np.random.uniform(-30, 30)
         return np.rot90(image, k=int(angle/90))
 
-    def preprocess_data(self, images):
-        return images
-        images = images - self.mean
-        images = images / self.sd
-
     def pass_training_data(self):
         """The training data is standardized
         and passed to the main network.
         """
-        # print(self.training_images[0])
-        images = self.preprocess_data(self.training_images)
-
-        images = images[0:10000]
-        labels = training_labels[0:10000]
+        images = self.training_images
+        #images = images[0:10000]
+        #labels = training_labels[0:10000]
 
         images = images.reshape(images.shape[0], images.shape[1]**2)
-        # labels = training_labels.reshape(training_labels.shape[0], 1)
-        labels = labels.reshape(labels.shape[0], 1)
+        labels = training_labels.reshape(training_labels.shape[0], 1)
+        #labels = labels.reshape(labels.shape[0], 1)
         data = np.hstack((images, labels))
 
         return data
@@ -55,16 +46,10 @@ class InputLayer:
         """The validation data is standardized
         and passed to the main network.
         """
-        images = self.preprocess_data(validation_images)
-        labels = validation_labels
-
-        return images, labels
+        return validation_images, validation_labels
 
     def pass_test_data(self):
         """Preprocess the test_data and
         pass it.
         """
-        images = self.preprocess_data(test_images)
-        labels = test_labels
-
-        return images, labels
+        return test_images, test_labels

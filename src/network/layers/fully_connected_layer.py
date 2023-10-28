@@ -90,7 +90,7 @@ class FullyConnectedLayer:
                 1 - beta2**(iterations+1))
             # Update variable
             self.weight_matrixes[dense] -= learning_rate * \
-                weight_mhat / (np.sqrt(weight_vhat)+1e-7)
+                weight_mhat / (np.sqrt(weight_vhat)+1e-9)
 
             # Same for bias
             self.bias_mean_grads[dense] = beta1*self.bias_mean_grads[dense] \
@@ -102,7 +102,7 @@ class FullyConnectedLayer:
             bias_vhat = self.bias_grad_variances[dense] / \
                 (1 - beta2**(iterations+1))
             self.biases[dense] -= learning_rate * \
-                bias_mhat / (np.sqrt(bias_vhat)+1e-7)
+                bias_mhat / (np.sqrt(bias_vhat)+1e-9)
 
     def backpropagation(self, gradient_score, reg_strength):
         """Updates the weights in the weight matrix

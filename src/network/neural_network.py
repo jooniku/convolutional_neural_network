@@ -24,11 +24,11 @@ class NeuralNetwork:
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
                  learning_rate=0.001,
-                 epochs=3,
+                 epochs=1,
                  reg_strength=0,
-                 batch_size=100,
+                 batch_size=50,
                  num_of_classes=10,
-                 beta1=0.9,
+                 beta1=0.95,
                  beta2=0.999):
 
         # hyperparameter initialization here
@@ -43,6 +43,7 @@ class NeuralNetwork:
         self.num_of_classes = num_of_classes
         self.beta1 = beta1
         self.beta2 = beta2
+        self.learning_rate_schedule = [70]
 
         self._initialize_custom_functions()
 
@@ -151,9 +152,11 @@ class NeuralNetwork:
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
 
-                if batch_iterations % 2 == 0:
-                    self.iterations += 1
+                self.iterations += 1
                 batch_iterations += 1
+                
+                if self.iterations in self.learning_rate_schedule:
+                    self.learning_rate *= 0.1
 
             print("epoch:", epoch)
         self._stop_training(save_network)
@@ -392,7 +395,7 @@ class NeuralNetwork:
         plt.show()
 
     def _visualize_probability_distribution(self, probabilities):
-        labels = [i for i in range(10)]
+        labels = [i for i in range(self.num_of_classes)]
         plt.bar(labels, probabilities*100, tick_label=labels)
         plt.xlabel("Class Label")
         plt.ylabel("Probability (%)")
