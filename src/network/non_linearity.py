@@ -7,19 +7,23 @@ class NonLinearity:
     """
 
     def __init__(self):
-        pass
+        self.received_inputs = {"conv_layer": [],
+                                "fc_layer": []}
 
-    def _relu(self, images):
+    def forward(self, image, layer_name):
         """Leaky rectified linear unit (ReLU) function to increase
         non-linearity. 
         """
-        activation = np.zeros_like(images)
-        height, width = images[0].shape
-        for filtered_img in range(len(images)):
-            for row in range(height):
-                for col in range(width):
-                    value = images[filtered_img][row][col]
-                    if images[filtered_img][row][col] < 0:
-                        value *= 0.00001
-                    activation[filtered_img][row][col] += value
-        return activation
+        self.received_inputs[layer_name].append(image)
+        image[image <= 0] = 0.001
+        return image
+    
+    def backpropagation(self, gradient, layer_name, layer_pos):
+        """Backpropagation through ReLU function. If the 
+        image during forward pass was less than 0, the
+        gradient becomes a small constant. Layer position
+        is referring to the layer after which the ReLU is done.
+        """
+        gradient[self.received_inputs[layer_name][layer_pos] <= 0] = 0.001
+
+        return gradient

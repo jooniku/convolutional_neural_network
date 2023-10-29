@@ -8,7 +8,7 @@ class FullyConnectedLayer:
     the classifier also.
     """
 
-    def __init__(self, num_of_classes, input_image_shape) -> None:
+    def __init__(self, num_of_classes, input_image_shape, non_linearity):
         self.number_of_classes = num_of_classes
         self.weight_matrixes = []
         self.biases = []
@@ -17,6 +17,7 @@ class FullyConnectedLayer:
         self.num_dense_layers = 2
 
         self.classifier_function = Classifier()
+        self.non_linearity = non_linearity
 
         self.initialize_weight_matrix()
 
@@ -30,6 +31,8 @@ class FullyConnectedLayer:
             self.received_inputs.append(flattened_image)
             flattened_image = np.dot(
                 flattened_image, self.weight_matrixes[i]) + self.biases[i]
+            if i < len(self.weight_matrixes)-1:
+                flattened_image = self.non_linearity.forward(flattened_image, "fc_layer")
         return flattened_image
 
     def initialize_weight_matrix(self):
@@ -121,6 +124,10 @@ class FullyConnectedLayer:
 
         gradient_for_next_layer = np.dot(gradient_score,
                                          self.weight_matrixes[-1].T)
+        
+        gradient_for_next_layer = gradient_for_next_layer.reshape(-1, 1)
+        gradient_for_next_layer = self.non_linearity.backpropagation(gradient_for_next_layer, 
+                                                                       "fc_layer", 0)
 
         self.received_inputs[-2] = np.array(
             self.received_inputs[-2]).reshape(1, -1)

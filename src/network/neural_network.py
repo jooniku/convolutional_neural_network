@@ -26,12 +26,11 @@ class NeuralNetwork:
                  learning_rate=0.001,
                  epochs=1,
                  reg_strength=0,
-                 batch_size=50,
+                 batch_size=32,
                  num_of_classes=10,
-                 beta1=0.95,
+                 beta1=0.9,
                  beta2=0.999):
 
-        # hyperparameter initialization here
         self.filter_size = filter_size
         self.stride_length = stride_length
         self.num_of_convolution_layers = num_of_convolutional_layers
@@ -43,7 +42,7 @@ class NeuralNetwork:
         self.num_of_classes = num_of_classes
         self.beta1 = beta1
         self.beta2 = beta2
-        self.learning_rate_schedule = [70]
+        self.learning_rate_schedule = [50, 600]
 
         self._initialize_custom_functions()
 
@@ -66,8 +65,8 @@ class NeuralNetwork:
         distribution of the classes.
         """
         for conv_layer in self.convolutional_layers:
-            images = self.non_linearity_function(
-                conv_layer.add_2d_convolution(images))
+            images = conv_layer.add_2d_convolution(images)
+            images = self.non_linear.forward(images, "conv_layer")
 
         images = self.pooling_layer.average_pooling(images)
 
@@ -113,8 +112,7 @@ class NeuralNetwork:
         """
         self._initialize_plots()
         self.iterations = 1
-        batch_iterations = 1
-        prev_validation_accuracy = 0
+        val_accuracy = 0
 
         for epoch in range(1, self.epochs+1):
             np.random.shuffle(self.training_data)
@@ -135,10 +133,8 @@ class NeuralNetwork:
 
                 self._update_network_parameters()
 
-                # Every 2nd iteration test validation accuracy
-                if batch_iterations % 3 == 0:
+                if self.iterations % 10 == 0:
                     val_accuracy = self._test_validation_accuracy()
-                    prev_validation_accuracy = val_accuracy
 
                     # save network incase overfitting
                     if val_accuracy > 98:
@@ -146,17 +142,16 @@ class NeuralNetwork:
                         self._save_plots()
 
                 self.loss_values.append(average_loss)
-                self.batch_values.append(batch_iterations)
-                self.validation_accuracy.append(prev_validation_accuracy)
+                self.batch_values.append(self.iterations)
+                self.validation_accuracy.append(val_accuracy)
 
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
 
                 self.iterations += 1
-                batch_iterations += 1
-                
-                if self.iterations in self.learning_rate_schedule:
-                    self.learning_rate *= 0.1
+                if self.iterations >= 400:
+                    if self.iterations % 100 == 0:
+                        self.learning_rate *= 0.1
 
             print("epoch:", epoch)
         self._stop_training(save_network)
@@ -188,13 +183,15 @@ class NeuralNetwork:
         gradient_input = self.fully_connected_layer.backpropagation(
             gradient_score=gradients, reg_strength=self.regularization_strength)
 
-        output_shape = 13
+        output_shape = 6
 
         gradient_input = self.pooling_layer.backpropagation_average_pooling(
             gradient_input, output_shape)
 
         for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
-            gradient_input = self.non_linearity_function(gradient_input)
+            gradient_input = self.non_linear.backpropagation(gradient_input,
+                                                                  "conv_layer",
+                                                                    conv_layer)
             gradient_input = self.convolutional_layers[conv_layer].backpropagation(
                 gradient_input, self.regularization_strength)
 
@@ -220,10 +217,11 @@ class NeuralNetwork:
         self._get_training_data()
         self._get_validation_data()
 
-        self.non_linearity_function = NonLinearity()._relu
+        self.non_linear = NonLinearity()
         self.pooling_layer = PoolingLayer(kernel_size=2, stride=1)
         self.fully_connected_layer = FullyConnectedLayer(
-            self.num_of_classes, (self.num_of_filters_in_conv_layer, 12, 12))  # if pooling stride 1
+            self.num_of_classes, (self.num_of_filters_in_conv_layer, 5, 5),
+            self.non_linear)  # if pooling stride 1
         self.classifier = Classifier()
 
         self._create_convolutional_layers()
@@ -361,7 +359,7 @@ class NeuralNetwork:
         for conv_layer in self.convolutional_layers:
             input_image = conv_layer.add_2d_convolution(input_image)
             activations.append(input_image)
-            input_image = self.non_linearity_function(input_image)
+            input_image = self.non_linear.forward(input_image, "conv_layer")
             activations.append(input_image)
 
         input_image = self.pooling_layer.average_pooling(input_image)

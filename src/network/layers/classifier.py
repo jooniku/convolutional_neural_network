@@ -16,7 +16,7 @@ class Classifier:
 
         exp_scores = np.exp(image)
         probabilities = (
-            exp_scores / np.sum(exp_scores, axis=0, keepdims=True))
+            exp_scores / np.sum(exp_scores))
 
         return probabilities
 
@@ -31,7 +31,7 @@ class Classifier:
         Returns:
             Loss : Total loss over the complete batch
         """
-        loss = -np.log(probabilities[label])
+        loss = -np.sum(np.log(probabilities[label]))
 
         return loss
 
@@ -41,6 +41,6 @@ class Classifier:
         """
         probabilities[label] -= 1
 
-        gradients = np.array(probabilities)
+        gradients = np.array(probabilities).reshape(1, 10)
 
         return gradients

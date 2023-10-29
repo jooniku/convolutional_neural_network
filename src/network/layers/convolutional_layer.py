@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.linalg import toeplitz
 
 
 class ConvolutionalLayer:
@@ -8,7 +7,6 @@ class ConvolutionalLayer:
         self.filter_size = filter_size
         self.num_of_filters = num_of_filters
         self.stride_length = stride_length
-
         self._create_filters()
 
     def _create_filters(self):
@@ -22,15 +20,17 @@ class ConvolutionalLayer:
 
         self.bias_vector = [0.01 for i in range(self.num_of_filters)]
 
-    def _add_padding(self, image: np.array):
+    def add_padding(self, image: np.array):
         """Adds zero-padding for the image to make sure the
         operations work. All images are padded to be the
         same shape as the original input.
         """
-        # needed_padding = int(np.ceil(((self.stride_length - 1)*self.conv_in_shape[1]
-        #                          -self.stride_length+self.filter_size)/2))
-
-        needed_padding = (28 - len(image)) // 2
+        return image
+        needed_padding = int(np.ceil(((self.stride_length - 1)*28
+                                  -self.stride_length+self.filter_size)/2))
+        #needed_padding = 0
+        #if image.shape[1] < 32:
+        #    needed_padding = int(np.ceil((32 - len(image)) / 2))
 
         return np.pad(image, pad_width=needed_padding)
 
@@ -40,7 +40,7 @@ class ConvolutionalLayer:
         all filters in the convolutional layer and
         returns a 3D array with each filter activation.
         """
-        images = np.array([self._add_padding(image) for image in images])
+        images = np.array([self.add_padding(image) for image in images])
         self.received_inputs = images
 
         output_dim = int(
@@ -85,15 +85,13 @@ class ConvolutionalLayer:
         """Updates the parameters with stored gradients
         from the backpropagation process.
         """
-        self.gradient_filters /= batch_size
-        self.bias_gradients /= batch_size
 
         for filter_i in range(len(self.filters)):
             # Update moment vectors
             self.filter_mean_grad[filter_i] = beta1*self.filter_mean_grad[filter_i] \
-                + (1-beta1)*self.gradient_filters[filter_i]
+                + (1-beta1)*self.gradient_filters[filter_i]/batch_size
             self.filter_grad_variance[filter_i] = beta2*self.filter_grad_variance[filter_i] \
-                + (1-beta2) * self.gradient_filters[filter_i]**2
+                + (1-beta2) * (self.gradient_filters[filter_i]/batch_size)**2
             # Take the bias-corrected variables
             filter_mhat = self.filter_mean_grad[filter_i] / \
                 (1 - beta1**(iterations+1))
@@ -105,9 +103,9 @@ class ConvolutionalLayer:
 
             # Same for bias
             self.bias_mean_grad[filter_i] = beta1*self.bias_mean_grad[filter_i] \
-                + (1-beta1)*self.bias_gradients[filter_i]
+                + (1-beta1)*self.bias_gradients[filter_i]/batch_size
             self.bias_grad_variance[filter_i] = beta2*self.bias_grad_variance[filter_i] \
-                + (1-beta2) * self.bias_gradients[filter_i]**2
+                + (1-beta2) * (self.bias_gradients[filter_i]/batch_size)**2
             bias_mhat = self.bias_mean_grad[filter_i] / \
                 (1 - beta1**(iterations+1))
             bias_vhat = self.bias_grad_variance[filter_i] / \
