@@ -110,7 +110,6 @@ class NeuralNetwork:
         self._initialize_plots()
         self.iterations = 1
         val_accuracy = 0
-        its = 0
         for epoch in range(1, self.epochs+1):
             np.random.shuffle(self.training_data)
             batches = [self.training_data[i: i + self.batch_size]
@@ -130,25 +129,24 @@ class NeuralNetwork:
 
                 self._update_network_parameters()
 
-                if self.iterations % 10 == 0:
-                    val_accuracy = 0#self._test_validation_accuracy()
+                if self.iterations % 3 == 0:
+                    val_accuracy = self._test_validation_accuracy()
 
                     # save network incase overfitting
-                    if val_accuracy > 98 or average_loss < 0.1:
-                        self._save_network()
-                        self._save_plots()
+                    #if val_accuracy > 98 or average_loss < 0.1:
+                    #    self._save_network()
+                    #    self._save_plots()
 
                 self.loss_values.append(average_loss)
-                self.batch_values.append(its)
+                self.batch_values.append(self.iterations)
                 self.validation_accuracy.append(val_accuracy)
 
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
-                its += 1
                 self.iterations += 1
 
                 if self.iterations in self.learning_rate_schedule:
-                    self.learning_rate *= 0.01
+                    self.learning_rate *= 0.5
             print("epoch:", epoch)
         self._stop_training(save_network)
 

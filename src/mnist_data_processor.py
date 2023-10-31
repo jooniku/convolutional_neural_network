@@ -20,6 +20,6 @@ test_labels_raw = "./data/MNIST_dataset/test-labels.idx1-ubyte"
 test_images = idx2numpy.convert_from_file(test_images_raw).copy()/255
 test_labels = idx2numpy.convert_from_file(test_labels_raw).copy()
 
-valid_nums = [np.random.randint(0, len(test_images)) for _ in range(100)]
+valid_nums = [np.random.randint(0, len(test_images)) for _ in range(300)]
 validation_images = [test_images[i] for i in valid_nums]
 validation_labels = [test_labels[i] for i in valid_nums]
