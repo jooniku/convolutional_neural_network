@@ -15,7 +15,7 @@ class NonLinearity:
         non-linearity. 
         """
         self.received_inputs[layer_name].append(image)
-        image[image <= 0] = 0.001
+        image[image <= 0] *= 0.001
         return image
     
     def backpropagation(self, gradient, layer_name, layer_pos):
@@ -24,6 +24,6 @@ class NonLinearity:
         gradient becomes a small constant. Layer position
         is referring to the layer after which the ReLU is done.
         """
-        gradient[self.received_inputs[layer_name][layer_pos] <= 0] = 0.001
+        gradient[self.received_inputs[layer_name][layer_pos] <= 0] *= 0.001
 
         return gradient

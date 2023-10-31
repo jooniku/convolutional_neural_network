@@ -3,6 +3,7 @@ import numpy as np
 from src.network.layers.convolutional_layer import ConvolutionalLayer
 from src.network.layers.fully_connected_layer import FullyConnectedLayer
 from src.network.layers.classifier import Classifier
+from src.network.non_linearity import NonLinearity
 from src.mnist_data_processor import training_images, training_labels
 
 
@@ -38,6 +39,7 @@ class TestConvolutionalLayer(unittest.TestCase):
         self.assertEqual(np.sum(convoluted_img), np.sum(correct_result))
 
     def test_gradient_check_for_conv_layer(self):
+        non_linear = NonLinearity()
         conv_layer = ConvolutionalLayer(
             num_of_filters=1, filter_size=3, stride_length=2)
         conv_layer.bias_vector = np.array([0, 0])
@@ -54,12 +56,14 @@ class TestConvolutionalLayer(unittest.TestCase):
                             [0, 2, 1, 0, 1, 2, 0],
                             [0, 0, 0, 0, 0, 0, 0]]])
 
-        fc = FullyConnectedLayer(10, (1, 13, 13))
+        fc = FullyConnectedLayer(10, (1, 13, 13),
+                                 non_linearity=non_linear)
         classifier = Classifier()
         conv_layer.initialize_gradients()
         fc.initialize_gradients()
 
         neutral = conv_layer.add_2d_convolution(images)
+        neutral = non_linear.forward(neutral, "conv_layer")
         neutral = fc.process(neutral)
         neutral = classifier.compute_probabilities(neutral)
         neutral = classifier.compute_gradients(neutral, 1)
@@ -71,6 +75,9 @@ class TestConvolutionalLayer(unittest.TestCase):
                 output_neg = conv_layer.add_2d_convolution(images)
                 conv_layer.filters[0][i][j] += 2*1e-7
                 output_pos = conv_layer.add_2d_convolution(images)
+
+                neg = non_linear.forward(neg, "conv_layer")
+                pos = non_linear.forward(pos, "conv_layer")
 
                 neg = fc.process(output_neg)
                 pos = fc.process(output_pos)

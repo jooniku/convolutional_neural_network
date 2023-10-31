@@ -19,17 +19,17 @@ class NeuralNetwork:
     calls layer classes. 
     """
 
-    def __init__(self, filter_size=3,
-                 stride_length=2,
-                 num_of_convolutional_layers=2,
-                 num_of_filters_in_conv_layer=8,
-                 learning_rate=0.001,
-                 epochs=1,
+    def __init__(self, filter_size=5,
+                 stride_length=1,
+                 num_of_convolutional_layers=3,
+                 num_of_filters_in_conv_layer=15,
+                 learning_rate=1e-2,
+                 epochs=3,
                  reg_strength=0,
-                 batch_size=32,
+                 batch_size=250,
                  num_of_classes=10,
-                 beta1=0.9,
-                 beta2=0.999):
+                 beta1=0.95,
+                 beta2=0.99):
 
         self.filter_size = filter_size
         self.stride_length = stride_length
@@ -42,7 +42,7 @@ class NeuralNetwork:
         self.num_of_classes = num_of_classes
         self.beta1 = beta1
         self.beta2 = beta2
-        self.learning_rate_schedule = [50, 600]
+        self.learning_rate_schedule = []
 
         self._initialize_custom_functions()
 
@@ -65,15 +65,12 @@ class NeuralNetwork:
         distribution of the classes.
         """
         for conv_layer in self.convolutional_layers:
-            images = conv_layer.add_2d_convolution(images)
+            images = conv_layer.convolute(images)
             images = self.non_linear.forward(images, "conv_layer")
 
-        images = self.pooling_layer.average_pooling(images)
-
+        images = self.pooling_layer.max_pooling(images)
         images = self.fully_connected_layer.process(images=images)
-
         probs = self.classifier.compute_probabilities(images)
-
         return probs
 
     def _gradient_descend(self, batch_images, labels):
@@ -113,7 +110,7 @@ class NeuralNetwork:
         self._initialize_plots()
         self.iterations = 1
         val_accuracy = 0
-
+        its = 0
         for epoch in range(1, self.epochs+1):
             np.random.shuffle(self.training_data)
             batches = [self.training_data[i: i + self.batch_size]
@@ -134,25 +131,24 @@ class NeuralNetwork:
                 self._update_network_parameters()
 
                 if self.iterations % 10 == 0:
-                    val_accuracy = self._test_validation_accuracy()
+                    val_accuracy = 0#self._test_validation_accuracy()
 
                     # save network incase overfitting
-                    if val_accuracy > 98:
+                    if val_accuracy > 98 or average_loss < 0.1:
                         self._save_network()
                         self._save_plots()
 
                 self.loss_values.append(average_loss)
-                self.batch_values.append(self.iterations)
+                self.batch_values.append(its)
                 self.validation_accuracy.append(val_accuracy)
 
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
-
+                its += 1
                 self.iterations += 1
-                if self.iterations >= 400:
-                    if self.iterations % 100 == 0:
-                        self.learning_rate *= 0.1
 
+                if self.iterations in self.learning_rate_schedule:
+                    self.learning_rate *= 0.01
             print("epoch:", epoch)
         self._stop_training(save_network)
 
@@ -161,10 +157,12 @@ class NeuralNetwork:
         its parameters with the gradients it has stored.
         The update method is using adam-momentum.
         """
+        clip_threshold = np.inf
         self.fully_connected_layer.update_parameters(batch_size=self.batch_size,
                                                      learning_rate=self.learning_rate,
                                                      beta1=self.beta1,
                                                      beta2=self.beta2,
+                                                     clip_threshold=clip_threshold,
                                                      iterations=self.iterations)
 
         for conv_layer in range(len(self.convolutional_layers)):
@@ -172,6 +170,7 @@ class NeuralNetwork:
                                                                     learning_rate=self.learning_rate,
                                                                     beta1=self.beta1,
                                                                     beta2=self.beta2,
+                                                                    clip_threshold=clip_threshold,
                                                                     iterations=self.iterations)
 
     def _backpropagate_network(self, gradients):
@@ -180,12 +179,13 @@ class NeuralNetwork:
         layer-specific backpropagation functions. For every layer
         it gives the gradient from the previous layer.
         """
+
         gradient_input = self.fully_connected_layer.backpropagation(
             gradient_score=gradients, reg_strength=self.regularization_strength)
 
-        output_shape = 6
+        output_shape = 16
 
-        gradient_input = self.pooling_layer.backpropagation_average_pooling(
+        gradient_input = self.pooling_layer.max_pooling_backpropagation(
             gradient_input, output_shape)
 
         for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
@@ -218,10 +218,10 @@ class NeuralNetwork:
         self._get_validation_data()
 
         self.non_linear = NonLinearity()
-        self.pooling_layer = PoolingLayer(kernel_size=2, stride=1)
+        self.pooling_layer = PoolingLayer(kernel_size=2, stride=2)
         self.fully_connected_layer = FullyConnectedLayer(
-            self.num_of_classes, (self.num_of_filters_in_conv_layer, 5, 5),
-            self.non_linear)  # if pooling stride 1
+            self.num_of_classes, (self.num_of_filters_in_conv_layer, 8, 8),
+            self.non_linear)
         self.classifier = Classifier()
 
         self._create_convolutional_layers()
@@ -357,12 +357,12 @@ class NeuralNetwork:
         activations = [input_image]
 
         for conv_layer in self.convolutional_layers:
-            input_image = conv_layer.add_2d_convolution(input_image)
+            input_image = conv_layer.convolute(input_image)
             activations.append(input_image)
             input_image = self.non_linear.forward(input_image, "conv_layer")
             activations.append(input_image)
 
-        input_image = self.pooling_layer.average_pooling(input_image)
+        input_image = self.pooling_layer.max_pooling(input_image)
         activations.append(input_image)
         input_image = self.fully_connected_layer.process(input_image)
         probs = self.classifier.compute_probabilities(input_image)
@@ -375,7 +375,7 @@ class NeuralNetwork:
         """
         titles = ["Input Image", "Convolutional Layer",
                   "Leaky ReLU", "Convolutional Layer",
-                  "Leaky ReLU", "Average Pooling"]
+                  "Leaky ReLU", "Max Pooling"]
 
         # Plot layers
         plt.figure(figsize=(10, 10))

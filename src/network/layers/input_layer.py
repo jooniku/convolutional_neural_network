@@ -10,30 +10,15 @@ class InputLayer:
     """
 
     def __init__(self):
-        self.training_images = self._perform_data_augmentation(training_images)
-
-    def _perform_data_augmentation(self, images):
-        """Perform data augmentation 
-         for better generalization.
-        """
-        for i in range(len(images)):
-            images[i] = self._random_rotation(images[i])
-
-        return images
-
-    def _random_rotation(self, image):
-        """Rotate image within angle.
-        """
-        angle = np.random.uniform(-30, 30)
-        return np.rot90(image, k=int(angle/90))
+        pass
 
     def pass_training_data(self):
         """The training data is standardized
         and passed to the main network.
         """
-        images = self.training_images
-        #images = images[0:10000]
-        #labels = training_labels[0:10000]
+        images = training_images
+        #images = images[0:10]
+        #labels = training_labels[0:10]
 
         images = images.reshape(images.shape[0], images.shape[1]**2)
         labels = training_labels.reshape(training_labels.shape[0], 1)

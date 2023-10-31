@@ -51,7 +51,7 @@ class FullyConnectedLayer:
         """Create a weight matrix and a 
         bias vector.
         """
-        matrix = 0.01 * \
+        matrix = 0.1 * \
             np.random.randn(rows, columns) \
             * np.sqrt(2.0 / rows)
         bias = np.zeros((columns))
@@ -76,11 +76,15 @@ class FullyConnectedLayer:
         self.bias_grad_variances = [np.zeros_like(self.biases[i])
                                     for i in range(len(self.biases))]
 
-    def update_parameters(self, batch_size, learning_rate, beta1, beta2, iterations):
+    def update_parameters(self, batch_size, learning_rate, beta1, beta2, clip_threshold, iterations):
         """Update the parameters of the layer with
         stored gradients accumulated within batches.
         """
         for dense in range(self.num_dense_layers):
+
+            self.gradient_weights[dense] = self._clip_gradient(self.gradient_weights[dense], clip_threshold)
+            self.bias_gradients[dense] = self._clip_gradient(self.bias_gradients[dense], clip_threshold)
+
             # Update moment vectors
             self.weight_mean_grads[dense] = beta1*self.weight_mean_grads[dense] \
                 + (1-beta1)*(self.gradient_weights[dense]/batch_size)
@@ -106,6 +110,13 @@ class FullyConnectedLayer:
                 (1 - beta2**(iterations+1))
             self.biases[dense] -= learning_rate * \
                 bias_mhat / (np.sqrt(bias_vhat)+1e-9)
+    
+    def _clip_gradient(self, gradient, clip_threshold):
+        gradient_norm = np.linalg.norm(gradient)
+        if gradient_norm > clip_threshold:
+            scaling_factor = clip_threshold / gradient_norm
+            gradient *= scaling_factor
+        return gradient      
 
     def backpropagation(self, gradient_score, reg_strength):
         """Updates the weights in the weight matrix
