@@ -21,12 +21,12 @@ class NeuralNetwork:
 
     def __init__(self, filter_size=5,
                  stride_length=1,
-                 num_of_convolutional_layers=3,
-                 num_of_filters_in_conv_layer=15,
+                 num_of_convolutional_layers=2,
+                 num_of_filters_in_conv_layer=8,
                  learning_rate=1e-2,
-                 epochs=3,
+                 epochs=2,
                  reg_strength=0,
-                 batch_size=250,
+                 batch_size=10,
                  num_of_classes=10,
                  beta1=0.95,
                  beta2=0.99):
@@ -67,8 +67,8 @@ class NeuralNetwork:
         for conv_layer in self.convolutional_layers:
             images = conv_layer.convolute(images)
             images = self.non_linear.forward(images, "conv_layer")
+            images = self.pooling_layer.max_pooling(images)
 
-        images = self.pooling_layer.max_pooling(images)
         images = self.fully_connected_layer.process(images=images)
         probs = self.classifier.compute_probabilities(images)
         return probs
@@ -129,8 +129,8 @@ class NeuralNetwork:
 
                 self._update_network_parameters()
 
-                if self.iterations % 3 == 0:
-                    val_accuracy = self._test_validation_accuracy()
+                #if self.iterations % 3 == 0:
+                #    val_accuracy = self._test_validation_accuracy()
 
                     # save network incase overfitting
                     #if val_accuracy > 98 or average_loss < 0.1:
@@ -181,17 +181,16 @@ class NeuralNetwork:
         gradient_input = self.fully_connected_layer.backpropagation(
             gradient_score=gradients, reg_strength=self.regularization_strength)
 
-        output_shape = 16
-
-        gradient_input = self.pooling_layer.max_pooling_backpropagation(
-            gradient_input, output_shape)
-
         for conv_layer in range(len(self.convolutional_layers)-1, -1, -1):
+            gradient_input = self.pooling_layer.max_pooling_backpropagation(
+                gradient_input, conv_layer)
+
             gradient_input = self.non_linear.backpropagation(gradient_input,
                                                                   "conv_layer",
                                                                     conv_layer)
             gradient_input = self.convolutional_layers[conv_layer].backpropagation(
                 gradient_input, self.regularization_strength)
+
 
     def _test_validation_accuracy(self):
         """This function runs a validation
@@ -218,7 +217,7 @@ class NeuralNetwork:
         self.non_linear = NonLinearity()
         self.pooling_layer = PoolingLayer(kernel_size=2, stride=2)
         self.fully_connected_layer = FullyConnectedLayer(
-            self.num_of_classes, (self.num_of_filters_in_conv_layer, 8, 8),
+            self.num_of_classes, (self.num_of_filters_in_conv_layer, 4, 4),
             self.non_linear)
         self.classifier = Classifier()
 
