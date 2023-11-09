@@ -23,10 +23,10 @@ class NeuralNetwork:
                  stride_length=1,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=1e-2,
+                 learning_rate=1e-3,
                  epochs=2,
                  reg_strength=0,
-                 batch_size=10,
+                 batch_size=30,
                  num_of_classes=10,
                  beta1=0.95,
                  beta2=0.99):
@@ -42,7 +42,9 @@ class NeuralNetwork:
         self.num_of_classes = num_of_classes
         self.beta1 = beta1
         self.beta2 = beta2
-        self.learning_rate_schedule = []
+        self.learning_rate_schedule = [50]
+        self.clip_threshold = np.inf
+
 
         self._initialize_custom_functions()
 
@@ -129,8 +131,8 @@ class NeuralNetwork:
 
                 self._update_network_parameters()
 
-                #if self.iterations % 3 == 0:
-                #    val_accuracy = self._test_validation_accuracy()
+                if self.iterations % 250 == 0:
+                    val_accuracy = self._test_validation_accuracy()
 
                     # save network incase overfitting
                     #if val_accuracy > 98 or average_loss < 0.1:
@@ -145,9 +147,12 @@ class NeuralNetwork:
                 self._plot_data()
                 self.iterations += 1
 
-                if self.iterations in self.learning_rate_schedule:
-                    self.learning_rate *= 0.5
+                #if self.iterations in self.learning_rate_schedule:
+                #    self.learning_rate *= 0.01
+                #    self.clip_threshold = 1
+                    
             print("epoch:", epoch)
+            self._save_network()
         self._stop_training(save_network)
 
     def _update_network_parameters(self):
@@ -155,12 +160,11 @@ class NeuralNetwork:
         its parameters with the gradients it has stored.
         The update method is using adam-momentum.
         """
-        clip_threshold = np.inf
         self.fully_connected_layer.update_parameters(batch_size=self.batch_size,
                                                      learning_rate=self.learning_rate,
                                                      beta1=self.beta1,
                                                      beta2=self.beta2,
-                                                     clip_threshold=clip_threshold,
+                                                     clip_threshold=self.clip_threshold,
                                                      iterations=self.iterations)
 
         for conv_layer in range(len(self.convolutional_layers)):
@@ -168,7 +172,7 @@ class NeuralNetwork:
                                                                     learning_rate=self.learning_rate,
                                                                     beta1=self.beta1,
                                                                     beta2=self.beta2,
-                                                                    clip_threshold=clip_threshold,
+                                                                    clip_threshold=self.clip_threshold,
                                                                     iterations=self.iterations)
 
     def _backpropagate_network(self, gradients):
