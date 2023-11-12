@@ -1,6 +1,8 @@
 # Digit Recognition Project
 The goal of the project is to create a tool to recognize and classify hand-written digits from an image using a convolutional neural network.
 
+I am continuing this project from period 1. 
+
 ## Documentation
 - [Weekly report](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/Weekly_reports/week_6.md)
 - [Requirement Specification](https://https://github.com/jooniku/digit_recognition_project/)
