@@ -23,13 +23,13 @@ class NeuralNetwork:
                  stride_length=1,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=1e-3,
+                 learning_rate=1e-4,
                  epochs=2,
                  reg_strength=0,
-                 batch_size=30,
+                 batch_size=20,
                  num_of_classes=10,
-                 beta1=0.95,
-                 beta2=0.99):
+                 beta1=0.90,
+                 beta2=0.999):
 
         self.filter_size = filter_size
         self.stride_length = stride_length
@@ -42,9 +42,8 @@ class NeuralNetwork:
         self.num_of_classes = num_of_classes
         self.beta1 = beta1
         self.beta2 = beta2
-        self.learning_rate_schedule = [50]
+        self.learning_rate_schedule = []
         self.clip_threshold = np.inf
-
 
         self._initialize_custom_functions()
 
@@ -134,11 +133,6 @@ class NeuralNetwork:
                 if self.iterations % 250 == 0:
                     val_accuracy = self._test_validation_accuracy()
 
-                    # save network incase overfitting
-                    #if val_accuracy > 98 or average_loss < 0.1:
-                    #    self._save_network()
-                    #    self._save_plots()
-
                 self.loss_values.append(average_loss)
                 self.batch_values.append(self.iterations)
                 self.validation_accuracy.append(val_accuracy)
@@ -146,11 +140,6 @@ class NeuralNetwork:
                 progress.set_description("Loss: %.2f" % (self.loss_values[-1]))
                 self._plot_data()
                 self.iterations += 1
-
-                #if self.iterations in self.learning_rate_schedule:
-                #    self.learning_rate *= 0.01
-                #    self.clip_threshold = 1
-                    
             print("epoch:", epoch)
             self._save_network()
         self._stop_training(save_network)
@@ -190,11 +179,10 @@ class NeuralNetwork:
                 gradient_input, conv_layer)
 
             gradient_input = self.non_linear.backpropagation(gradient_input,
-                                                                  "conv_layer",
-                                                                    conv_layer)
+                                                             "conv_layer",
+                                                             conv_layer)
             gradient_input = self.convolutional_layers[conv_layer].backpropagation(
                 gradient_input, self.regularization_strength)
-
 
     def _test_validation_accuracy(self):
         """This function runs a validation

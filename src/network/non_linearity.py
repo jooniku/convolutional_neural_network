@@ -17,7 +17,7 @@ class NonLinearity:
         self.received_inputs[layer_name].append(image)
         image[image <= 0] *= 0.001
         return image
-    
+
     def backpropagation(self, gradient, layer_name, layer_pos):
         """Backpropagation through ReLU function. If the 
         image during forward pass was less than 0, the

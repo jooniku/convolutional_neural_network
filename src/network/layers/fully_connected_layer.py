@@ -32,7 +32,8 @@ class FullyConnectedLayer:
             flattened_image = np.dot(
                 flattened_image, self.weight_matrixes[i]) + self.biases[i]
             if i < len(self.weight_matrixes)-1:
-                flattened_image = self.non_linearity.forward(flattened_image, "fc_layer")
+                flattened_image = self.non_linearity.forward(
+                    flattened_image, "fc_layer")
         return flattened_image
 
     def initialize_weight_matrix(self):
@@ -82,8 +83,10 @@ class FullyConnectedLayer:
         """
         for dense in range(self.num_dense_layers):
 
-            self.gradient_weights[dense] = self._clip_gradient(self.gradient_weights[dense], clip_threshold)
-            self.bias_gradients[dense] = self._clip_gradient(self.bias_gradients[dense], clip_threshold)
+            self.gradient_weights[dense] = self._clip_gradient(
+                self.gradient_weights[dense], clip_threshold)
+            self.bias_gradients[dense] = self._clip_gradient(
+                self.bias_gradients[dense], clip_threshold)
 
             # Update moment vectors
             self.weight_mean_grads[dense] = beta1*self.weight_mean_grads[dense] \
@@ -110,13 +113,13 @@ class FullyConnectedLayer:
                 (1 - beta2**(iterations+1))
             self.biases[dense] -= learning_rate * \
                 bias_mhat / (np.sqrt(bias_vhat)+1e-9)
-    
+
     def _clip_gradient(self, gradient, clip_threshold):
         gradient_norm = np.linalg.norm(gradient)
         if gradient_norm > clip_threshold:
             scaling_factor = clip_threshold / gradient_norm
             gradient *= scaling_factor
-        return gradient      
+        return gradient
 
     def backpropagation(self, gradient_score, reg_strength):
         """Updates the weights in the weight matrix
@@ -135,10 +138,10 @@ class FullyConnectedLayer:
 
         gradient_for_next_layer = np.dot(gradient_score,
                                          self.weight_matrixes[-1].T)
-        
+
         gradient_for_next_layer = gradient_for_next_layer.reshape(-1, 1)
-        gradient_for_next_layer = self.non_linearity.backpropagation(gradient_for_next_layer, 
-                                                                       "fc_layer", 0)
+        gradient_for_next_layer = self.non_linearity.backpropagation(gradient_for_next_layer,
+                                                                     "fc_layer", 0)
 
         self.received_inputs[-2] = np.array(
             self.received_inputs[-2]).reshape(1, -1)

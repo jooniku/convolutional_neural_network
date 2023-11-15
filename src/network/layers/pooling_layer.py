@@ -43,7 +43,7 @@ class PoolingLayer:
                 d_x = out_x = 0
                 while d_x + self.pooling_kernel_size <= out_dim:
                     window = input_image[i, d_y:d_y+self.pooling_kernel_size,
-                                                                    d_x:d_x+self.pooling_kernel_size]
+                                         d_x:d_x+self.pooling_kernel_size]
                     x, y = np.unravel_index(window.argmax(), window.shape)
                     output_grad[i, d_y+y, d_x+x] = gradient[i, out_y, out_x]
                     d_x += self.stride_length
