@@ -23,7 +23,7 @@ class NeuralNetwork:
                  stride_length=1,
                  num_of_convolutional_layers=2,
                  num_of_filters_in_conv_layer=8,
-                 learning_rate=1e-4,
+                 learning_rate=1e-5,
                  epochs=2,
                  reg_strength=0,
                  batch_size=20,
