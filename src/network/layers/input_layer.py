@@ -13,6 +13,7 @@ class InputLayer:
         pass
 
     def normalize_images(self, images):
+        images = np.array(images)
         images -= int(np.mean(images))
         images /= int(np.std(images))
         return images
