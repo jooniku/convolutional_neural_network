@@ -12,11 +12,17 @@ class InputLayer:
     def __init__(self):
         pass
 
+    def normalize_images(self, images):
+        images -= int(np.mean(images))
+        images /= int(np.std(images))
+        return images
+
     def pass_training_data(self):
         """The training data is standardized
         and passed to the main network.
         """
-        images = training_images
+        images = self.normalize_images(training_images)
+        
         # images = images[0:10]
         # labels = training_labels[0:10]
 
@@ -31,10 +37,10 @@ class InputLayer:
         """The validation data is standardized
         and passed to the main network.
         """
-        return validation_images, validation_labels
+        return self.normalize_images(validation_images), validation_labels
 
     def pass_test_data(self):
         """Preprocess the test_data and
         pass it.
         """
-        return test_images, test_labels
+        return self.normalize_images(test_images), test_labels
