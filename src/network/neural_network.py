@@ -22,11 +22,11 @@ class NeuralNetwork:
     def __init__(self, filter_size=5,
                  stride_length=1,
                  num_of_convolutional_layers=2,
-                 num_of_filters_in_conv_layer=6,
-                 learning_rate=1e-4,
-                 epochs=2,
+                 num_of_filters_in_conv_layer=8,
+                 learning_rate=2e-3,
+                 epochs=4,
                  reg_strength=0,
-                 batch_size=100,
+                 batch_size=60,
                  num_of_classes=10,
                  beta1=0.90,
                  beta2=0.999):
@@ -143,6 +143,7 @@ class NeuralNetwork:
                 self.iterations += 1
             print("epoch:", epoch)
             self._save_network()
+            self.learning_rate *= 0.1
         self._stop_training(save_network)
 
     def _update_network_parameters(self):
