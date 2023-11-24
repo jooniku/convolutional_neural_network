@@ -108,6 +108,7 @@ class NeuralNetwork:
         into batches, computes gradients and updates weights
         with stochastic gradient descent algorithm.
         """
+        print(f"lr: {self.learning_rate}, batch size: {self.batch_size}")
         self._initialize_plots()
         self.iterations = 1
         val_accuracy = 0
