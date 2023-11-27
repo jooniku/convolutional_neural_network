@@ -22,7 +22,7 @@ class NeuralNetwork:
     def __init__(self, filter_size=5,
                  stride_length=1,
                  num_of_convolutional_layers=2,
-                 num_of_filters_in_conv_layer=12,
+                 num_of_filters_in_conv_layer=20,
                  learning_rate=1e-3,
                  epochs=4,
                  reg_strength=0,
