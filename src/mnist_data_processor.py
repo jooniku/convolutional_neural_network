@@ -22,14 +22,23 @@ def extract_labels(filename, num_images):
         labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
     return labels
 
+fashion = True
 
-training_images_file = "./data/MNIST_dataset/train-images-idx3-ubyte.gz"
-training_labels_file = "./data/MNIST_dataset/train-labels-idx1-ubyte.gz"
+if fashion: dataset = "Fashion_MNIST_dataset"
+else: dataset = "MNIST_dataset"
+
+
+training_images_file = f"./data/{dataset}/train-images-idx3-ubyte.gz"
+training_labels_file = f"./data/{dataset}/train-labels-idx1-ubyte.gz"
+
 training_images = extract_images(training_images_file, 60_000, 28)
 training_labels = extract_labels(training_labels_file, 60_000)
 
-test_images_file = "./data/MNIST_dataset/t10k-images-idx3-ubyte.gz"
-test_labels_file = "./data/MNIST_dataset/t10k-labels-idx1-ubyte.gz"
+
+test_images_file = f"./data/{dataset}/t10k-images-idx3-ubyte.gz"
+test_labels_file = f"./data/{dataset}/t10k-labels-idx1-ubyte.gz"
+
+
 test_images = extract_images(test_images_file, 10_000, 28)
 test_labels = extract_labels(test_labels_file, 10_000)
 
