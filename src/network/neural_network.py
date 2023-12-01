@@ -352,8 +352,9 @@ class NeuralNetwork:
             activations.append(input_image)
             input_image = self.non_linear.forward(input_image, "conv_layer")
             activations.append(input_image)
+            input_image = self.pooling_layer.max_pooling(input_image)
+            activations.append(input_image)
 
-        input_image = self.pooling_layer.max_pooling(input_image)
         activations.append(input_image)
         input_image = self.fully_connected_layer.process(input_image)
         probs = self.classifier.compute_probabilities(input_image)
@@ -365,13 +366,16 @@ class NeuralNetwork:
         """Visualizes the activation maps produced.
         """
         titles = ["Input Image", "Convolutional Layer",
-                  "Leaky ReLU", "Convolutional Layer",
-                  "Leaky ReLU", "Max Pooling"]
+                  "Leaky ReLU", "Max Pooling", "Convolutional Layer",
+                  "Leaky ReLU", "Max Pooling", "FC Layer"]
 
         # Plot layers
-        plt.figure(figsize=(10, 10))
+        plt.figure(figsize=(15, 10))
         plt.title("Layer Activations", pad=30)
         num_filters = len(activations[0])
+        if num_filters > 10:
+            num_filters = 5
+
         for layer in range(len(activations)):
             plt.subplot(1, len(activations), layer+1)
             for filter in range(num_filters):
