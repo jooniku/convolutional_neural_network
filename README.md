@@ -1,4 +1,4 @@
-# Digit Recognition Project
+# Convolutional Neural Network Project
 The goal of the project is to create a tool to recognize and classify hand-written digits from an image using a convolutional neural network.
 
 I am continuing this project from period 1. 
