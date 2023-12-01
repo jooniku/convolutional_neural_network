@@ -9,7 +9,7 @@ class App:
     """
 
     def __init__(self):
-        self.nn = None
+        self.nn = NeuralNetwork()
         self.test_images = None
         self.test_labels = None
 
@@ -32,7 +32,6 @@ class App:
     def _choose_network(self):
         setup = input("Load a pre-trained network(1) or train a network(2): ")
         if setup == "1":
-            self.nn = NeuralNetwork()
             cust = input("Load latest(1) or specify network(2): ")
             if cust == "1":
                 print("Loading network...")
@@ -47,40 +46,7 @@ class App:
                     print("No such file...")
                     self._choose_network()
         elif setup == "2":
-            self.setup_network()
-
-    def setup_network(self):
-        custom = input(
-            "You can use default hyperparameters(1) or use custom ones(2): ")
-        if custom == "1":
-            self.nn = NeuralNetwork()
-        elif custom == "2":
-            print(
-                "Select custom values for the network. Default values are shown in parentheses.")
-            learning_rate = float(input("Learning rate(0.001): "))
-            epochs = int(
-                input("Number of iterations through the entire dataset(epochs)(2): "))
-            reg_strength = float(input("Regularization strength(0.0001): "))
-            batch_size = int(input("Batch size(50): "))
-            num_of_classes = int(
-                input("Number of classes in dataset(10 for MNIST): "))
-            print("Next two values are for Adam gradient descend optimization algorithm")
-            beta1 = float(input("Beta 1(0.9): "))
-            beta2 = float(input("Beta 2(0.999): "))
-            num_of_convolutional_layers = int(
-                input("Number of convolutional layers(2): "))
-            num_of_filters_in_conv_layer = int(
-                input("Number of filters in convolutional layer(10): "))
-            filter_size = int(
-                input("Select convolutional layer filter size(3): "))
-            stride_length = int(
-                input("Select convolutional layer stride length(2): "))
-
-            self.nn = NeuralNetwork(filter_size, stride_length, num_of_convolutional_layers,
-                                    num_of_filters_in_conv_layer, learning_rate, epochs,
-                                    reg_strength, batch_size, num_of_classes, beta1, beta2)
-        print("Training started...")
-        self.nn.train_network()
+            self.nn.train_network()
 
     def test_network(self):
         self.test_images, self.test_labels = self.nn.get_test_data()
