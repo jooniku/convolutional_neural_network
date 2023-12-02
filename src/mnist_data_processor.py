@@ -22,7 +22,7 @@ def extract_labels(filename, num_images):
         labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
     return labels
 
-fashion = True
+fashion = False
 
 if fashion: dataset = "Fashion_MNIST_dataset"
 else: dataset = "MNIST_dataset"
