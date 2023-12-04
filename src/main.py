@@ -15,7 +15,7 @@ class App:
 
     def run(self):
         self._choose_network()
-        # Run the rest of the program with trained network
+
         while True:
             do = input(
                 "Test the network(1), visualize the network(2), choose a new network(3) or quit(4): ")
@@ -107,7 +107,7 @@ class App:
         """Visualize data going
         through the network.
         """
-        print("Here we can see an input image of a number go through the network.")
+        print("Here we can see an input image go through the network.")
         self.nn.get_layer_activations()
 
     def test_visualization(self, results):
