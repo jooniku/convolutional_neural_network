@@ -21,4 +21,4 @@ After the test the application will give a histogram of correct predictions per 
 User can visualize an image passing through the network.
 The app will also give its prediction for the presented image.
 
-<img src= height=400 width=500>
+<img src=https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/images/layer_activations_cnn.png height=700 width=800>
