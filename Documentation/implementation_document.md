@@ -3,8 +3,8 @@
 ## Project structure
 - User interacts with the main application
 - Dataset to be used can be selected (currently just the MNIST dataset)
-- Later user can customize the neural network e.g. size of kernels, pooling functions etc.
 - User will not have direct access to the workings of the network and all inner functions/methods are hidden
+- User can train a new network or test a pre-trained model
 
 ## Use of LLMs
 - ChatGPT3.5 has been used to help understand some concepts regarding backpropagation, plotting data and testing etc.
@@ -17,7 +17,7 @@ Here are the main sources for the project
 - [Convolutional Neural Networks for Visual Recognition](https://cs231n.github.io/)
 
 ## Architecture of the CNN
-- Has an input layer, two convolutional layers with non-linearity functions and a pooling layer proceeded by a fully connected layer using softmax
+- Has an input layer, two convolutional layers with non-linearity functions and a pooling layer proceeded by 2 fully connected layers using softmax
 
 ![Visualized architecture](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/images/cnn_architecture.png)
 
@@ -26,7 +26,7 @@ Here are the main sources for the project
 - Feeds it to the network
 
 ### Convolutional layer
-- Checks size of the image and adds appropriate padding. "Same" padding is used, so the images are always convoluted as the same size.
+- No padding is applied
 - Convolutes the image by taking a filter and sliding it across the image and taking a dot-product and then a sum of weights and local image. Then adds a bias.
 - The weight matrix (kernel) and bias vectors are initialized with values suggested in the Stanford course material of best current practises
 - Weigth initialization formula is _w = np.random.randn(n) * sqrt(2.0/n)_, bias vector has all values of _0.01_
@@ -37,8 +37,6 @@ Here are the main sources for the project
 - If a given value in image is less than 0, the value becomes 0.0001*original_value
 
 ### Pooling layer
-- Has currently two different pooling functions, only average-pooling is tested and has backpropagation implemented.
-- Average pooling takes an average of all the values within a kernels local space (e.g. 2x2 area) and reduces the size to 1 value
 - Max pooling takes the largest value of the kernels local area and reduces size to 1 value
 
 ###  Fully connected layer
