@@ -51,7 +51,7 @@ class App:
     def test_network(self):
         self.test_images, self.test_labels = self.nn.get_test_data()
         test_size = input(
-            "usr_input a quick test of 100 images(1), a medium test \
+            "Do a quick test of 100 images(1), a medium test \
                 of 2 000 images(2) or a full test of 10 000 images(3): ")
 
         if test_size == "1":
@@ -90,7 +90,7 @@ class App:
             class_accuracy[str(i)] = [0, 0]  # left is correct pred
 
         result = 0
-        nums = [np.ranusr_inputm.randint(0, len(self.test_images))
+        nums = [np.random.randint(0, len(self.test_images))
                 for i in range(size)]
 
         for num in nums:
