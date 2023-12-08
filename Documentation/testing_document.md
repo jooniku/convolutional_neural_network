@@ -15,9 +15,11 @@
 - Pylint is used to check code quality
 
 ### Test coverage
-- Test coverage is 90 %.
+- Test coverage is 84 %.
 - Test coverage doesn't seem to be the best indicator of a working project with neural networks.
 - Therefore the other tests have been created.
+- Plotting has not been tested.
+- Or data loading.
 
 ### Test report
-![coverage report](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/images/coverage_report.png)
+![coverage report](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/images/cvrg_report_cnn.png)
