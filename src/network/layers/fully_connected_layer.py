@@ -8,7 +8,7 @@ class FullyConnectedLayer:
     the classifier also.
     """
 
-    def __init__(self, num_of_classes, input_image_shape, non_linearity):
+    def __init__(self, num_of_classes, input_image_shape, classifier, non_linearity):
         self.number_of_classes = num_of_classes
         self.weight_matrixes = []
         self.biases = []
@@ -16,7 +16,7 @@ class FullyConnectedLayer:
         self.input_image_shape = input_image_shape
         self.num_dense_layers = 2
 
-        self.classifier_function = Classifier()
+        self.classifier_function = classifier
         self.non_linearity = non_linearity
 
         self.initialize_weight_matrix()

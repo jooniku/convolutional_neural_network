@@ -12,6 +12,11 @@ class PoolingLayer:
         self.received_inputs = []
 
     def max_pooling(self, image):
+        """A max-pooling algorithm which slides
+        over the input image and chooses the max
+        value of local area and uses it to represent
+        the whole local area.
+        """
         num_images, in_dim, _ = image.shape
         self.received_inputs.append(image)
 
@@ -33,6 +38,9 @@ class PoolingLayer:
         return output
 
     def max_pooling_backpropagation(self, gradient, layer_pos):
+        """Backpropagation for max pooling. Only passes the gradients
+        that correspond to the local maximum value in the input image.
+        """
         input_image = self.received_inputs[layer_pos]
         out_dim = input_image.shape[1]
         output_grad = np.zeros(input_image.shape)

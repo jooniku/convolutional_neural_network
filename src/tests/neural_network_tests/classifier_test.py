@@ -7,7 +7,7 @@ from src.network.layers.classifier import Classifier
 class TestClassifier(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.classifier = Classifier()
+        self.classifier = Classifier(3)
 
     def test_computing_probabilities_is_correct(self):
         image = [1, 2, 8]
@@ -45,7 +45,7 @@ class TestClassifier(unittest.TestCase):
         correct_grad = [0.0009088, 0.00247037, -0.0033792]
 
         grads_sum = 0
-        for row in grads:
+        for row in grads[0]:
             grads_sum += row
 
         correct_sum = 0

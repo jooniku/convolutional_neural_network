@@ -3,8 +3,8 @@ import numpy as np
 
 class Classifier:
 
-    def __init__(self):
-        pass
+    def __init__(self, num_classes):
+        self.num_classes = num_classes
 
     def compute_probabilities(self, image):
         """This function computes the probabilities
@@ -41,6 +41,6 @@ class Classifier:
         """
         probabilities[label] -= 1
 
-        gradients = np.array(probabilities).reshape(1, 10)
+        gradients = np.array(probabilities).reshape(1, self.num_classes)
 
         return gradients

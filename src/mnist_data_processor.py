@@ -1,4 +1,3 @@
-import idx2numpy
 import gzip
 import numpy as np
 

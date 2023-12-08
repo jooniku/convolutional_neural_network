@@ -1,0 +1,1 @@
+This week was spent finishing up the project. Some UI changes and getting the tests in working condition. ~4h

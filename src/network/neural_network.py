@@ -1,15 +1,15 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime
-import pathlib
-import os
-from tqdm import tqdm
 from src.network.non_linearity import NonLinearity
 from src.network.layers.pooling_layer import PoolingLayer
 from src.network.layers.convolutional_layer import ConvolutionalLayer
 from src.network.layers.fully_connected_layer import FullyConnectedLayer
 from src.network.layers.input_layer import InputLayer
 from src.network.layers.classifier import Classifier
+import os
+import pathlib
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime
+from tqdm import tqdm
 
 
 class NeuralNetwork:
@@ -210,10 +210,10 @@ class NeuralNetwork:
 
         self.non_linear = NonLinearity()
         self.pooling_layer = PoolingLayer(kernel_size=2, stride=2)
+        self.classifier = Classifier(self.num_of_classes)
         self.fully_connected_layer = FullyConnectedLayer(
             self.num_of_classes, (self.num_of_filters_in_conv_layer, 4, 4),
-            self.non_linear)
-        self.classifier = Classifier()
+            self.classifier, self.non_linear)
 
         self._create_convolutional_layers()
 
