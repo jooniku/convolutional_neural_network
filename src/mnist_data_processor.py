@@ -4,6 +4,8 @@ import numpy as np
 """This file takes the MNIST dataset files
 and converts the data to a 28x28 numpy array (matrix) that the network can use.
 """
+
+
 def extract_images(filename, num_images, image_width):
     print("Retrieving images from", filename)
     with gzip.open(filename) as bytestream:
@@ -13,6 +15,7 @@ def extract_images(filename, num_images, image_width):
         data = data.reshape(num_images, image_width, image_width)
         return data
 
+
 def extract_labels(filename, num_images):
     print("Retrieving labels from", filename)
     with gzip.open(filename) as bytestream:
@@ -21,10 +24,13 @@ def extract_labels(filename, num_images):
         labels = np.frombuffer(buf, dtype=np.uint8).astype(np.int64)
     return labels
 
+
 fashion = False
 
-if fashion: dataset = "Fashion_MNIST_dataset"
-else: dataset = "MNIST_dataset"
+if fashion:
+    dataset = "Fashion_MNIST_dataset"
+else:
+    dataset = "MNIST_dataset"
 
 
 training_images_file = f"./data/{dataset}/train-images-idx3-ubyte.gz"

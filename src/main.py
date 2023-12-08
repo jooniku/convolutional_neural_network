@@ -17,15 +17,15 @@ class App:
         self._choose_network()
 
         while True:
-            do = input(
+            usr_input = input(
                 "Test the network(1), visualize the network(2), choose a new network(3) or quit(4): ")
-            if do == "1":
+            if usr_input == "1":
                 self.test_network()
-            elif do == "2":
+            elif usr_input == "2":
                 self.data_visualization()
-            elif do == "3":
+            elif usr_input == "3":
                 self._choose_network()
-            elif do == "4":
+            elif usr_input == "4":
                 break
         print()
 
@@ -51,7 +51,8 @@ class App:
     def test_network(self):
         self.test_images, self.test_labels = self.nn.get_test_data()
         test_size = input(
-            "Do a quick test of 100 images(1), a medium test of 2 000 images(2) or a full test of 10 000 images(3): ")
+            "usr_input a quick test of 100 images(1), a medium test \
+                of 2 000 images(2) or a full test of 10 000 images(3): ")
 
         if test_size == "1":
             self._quick_test(100)
@@ -89,7 +90,7 @@ class App:
             class_accuracy[str(i)] = [0, 0]  # left is correct pred
 
         result = 0
-        nums = [np.random.randint(0, len(self.test_images))
+        nums = [np.ranusr_inputm.randint(0, len(self.test_images))
                 for i in range(size)]
 
         for num in nums:

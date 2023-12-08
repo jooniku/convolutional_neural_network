@@ -91,7 +91,8 @@ class TestConvolutionalLayer(unittest.TestCase):
                 numerical_gradients[0][i][j] = (classifier.compute_loss(
                     pos_prob, 1) - classifier.compute_loss(neg_prob, 1)) / (2 * 1e-7)
 
-        conv_layer.backpropagation(non_linear.backpropagation(fc.backpropagation(neutral, 0), "conv_layer", 0), 0)
+        conv_layer.backpropagation(non_linear.backpropagation(
+            fc.backpropagation(neutral, 0), "conv_layer", 0), 0)
         analytical_gradients = conv_layer.gradient_filters
         print("ana", analytical_gradients)
         print("num", numerical_gradients)

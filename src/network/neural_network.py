@@ -1,15 +1,15 @@
-from src.network.non_linearity import NonLinearity
-from src.network.layers.pooling_layer import PoolingLayer
-from src.network.layers.convolutional_layer import ConvolutionalLayer
-from src.network.layers.fully_connected_layer import FullyConnectedLayer
-from src.network.layers.input_layer import InputLayer
-from src.network.layers.classifier import Classifier
 import os
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 from tqdm import tqdm
+from src.network.non_linearity import NonLinearity
+from src.network.layers.pooling_layer import PoolingLayer
+from src.network.layers.convolutional_layer import ConvolutionalLayer
+from src.network.layers.fully_connected_layer import FullyConnectedLayer
+from src.network.layers.input_layer import InputLayer
+from src.network.layers.classifier import Classifier
 
 
 class NeuralNetwork:
@@ -26,7 +26,7 @@ class NeuralNetwork:
                  learning_rate=1e-3,
                  epochs=4,
                  reg_strength=0,
-                 batch_size=150,
+                 batch_size=15,
                  num_of_classes=10,
                  beta1=0.90,
                  beta2=0.999):
@@ -44,6 +44,7 @@ class NeuralNetwork:
         self.beta2 = beta2
         self.learning_rate_schedule = []
         self.clip_threshold = np.inf
+        self.iterations = 1
 
         self._initialize_custom_functions()
 
@@ -110,7 +111,6 @@ class NeuralNetwork:
         """
         print(f"lr: {self.learning_rate}, batch size: {self.batch_size}")
         self._initialize_plots()
-        self.iterations = 1
         val_accuracy = 0
         for epoch in range(1, self.epochs+1):
             np.random.shuffle(self.training_data)
@@ -142,7 +142,7 @@ class NeuralNetwork:
                 self._plot_data()
                 self.iterations += 1
             print("epoch:", epoch)
-            self._save_network()
+            self._save_network(save_network)
             self.learning_rate *= 0.1
         self._stop_training(save_network)
 
@@ -252,10 +252,12 @@ class NeuralNetwork:
 
         print("Network loaded successfully")
 
-    def _save_network(self):
+    def _save_network(self, save_network: bool):
         """Saves the current network to a file.
         Gives the current date and time as filename.
         """
+        if not save_network:
+            return
         path = pathlib.Path("data/trained_networks")
         absolute_path = path.resolve()
         file_name = str(absolute_path) + "/" + \
@@ -305,7 +307,7 @@ class NeuralNetwork:
         print("Minimum loss achieved:", np.amin(self.loss_values))
 
         if save_network:
-            self._save_network()
+            self._save_network(save_network)
             self._save_plots()
 
     def get_test_data(self):
@@ -328,9 +330,8 @@ class NeuralNetwork:
         """Creates all of the convolutional layers
         and adds them to a list where they can be referenced to.
         """
-
         self.convolutional_layers = []
-        for i in range(self.num_of_convolution_layers):
+        for _ in range(self.num_of_convolution_layers):
             self.convolutional_layers.append(ConvolutionalLayer(
                 self.filter_size, self.stride_length,
                 self.num_of_filters_in_conv_layer))
@@ -378,10 +379,10 @@ class NeuralNetwork:
 
         for layer in range(len(activations)):
             plt.subplot(1, len(activations), layer+1)
-            for filter in range(num_filters):
+            for filt in range(num_filters):
                 plt.subplot(num_filters, len(activations),
-                            filter*len(activations)+layer+1)
-                plt.imshow(activations[layer][filter], cmap="viridis")
+                            filt*len(activations)+layer+1)
+                plt.imshow(activations[layer][filt], cmap="viridis")
                 plt.axis("off")
             plt.title(titles[layer], y=-1)
         plt.tight_layout()
@@ -433,12 +434,12 @@ class NeuralNetwork:
         validation accuracy.
         """
 
-        line1 = self.ax1.plot(self.batch_values,
-                              self.loss_values,
-                              color="b")
-        line2 = self.ax2.plot(self.batch_values,
-                              self.validation_accuracy,
-                              color="r")
+        self.ax1.plot(self.batch_values,
+                      self.loss_values,
+                      color="b")
+        self.ax2.plot(self.batch_values,
+                      self.validation_accuracy,
+                      color="r")
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
 

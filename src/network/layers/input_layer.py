@@ -23,7 +23,7 @@ class InputLayer:
         and passed to the main network.
         """
         images = self.normalize_images(training_images)
-        
+
         # images = images[0:10]
         # labels = training_labels[0:10]
 
