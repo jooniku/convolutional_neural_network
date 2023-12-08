@@ -1,6 +1,10 @@
 # User Manual
 Once the project has been installed as instructed in the README.md file, the user can train a new model or test a pre-trained one.
 
+User can start the application with
+```bash
+poetry run invoke start
+```
 
 ## Training a new model
 User can choose to train a new model.
@@ -17,8 +21,14 @@ Generally the 2000 image test-set is large enough to provide accurate estimate o
 
 After the test the application will give a histogram of correct predictions per class.
 
+This example had a 97% accuracy.
+
+<img src=https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/images/pred_per_class.png height=400 width=500>
+
+
 ## Visualization
 User can visualize an image passing through the network.
 The app will also give its prediction for the presented image.
 
-<img src=https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/images/layer_activations_cnn.png height=700 width=800>
+<img src=https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/images/layer_activations.png height=700 width=800>
+<img src=https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/images/prediction.png height=400 width=500>
