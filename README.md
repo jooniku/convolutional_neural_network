@@ -4,11 +4,12 @@ The goal of the project is to create a tool to recognize and classify hand-writt
 I am continuing this project from period 1. 
 
 ## Documentation
-- [Weekly report](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/Weekly_reports/week_5.md)
-- [Requirement Specification](https://https://github.com/jooniku/digit_recognition_project/)
-- [Testing document](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/testing_document.md)
-- [Implementation document](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/implementation_document.md)
-- [Changelog](https://github.com/jooniku/digit_recognition_project/blob/main/Documentation/changelog.md)
+- [Weekly report](https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/Weekly_reports/week_5.md)
+- [Requirement Specification](Documentation/requirement_specification.md)
+- [Testing document](Documentation/implementation_document.md)
+- [Implementation document](Documentation/implementation_document.md)
+- [User Manual](Documentation/user_manual.md)
+
 
 ## Installation
 Poetry must be installed on the system.
