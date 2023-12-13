@@ -50,38 +50,17 @@ class App:
 
     def test_network(self):
         self.test_images, self.test_labels = self.nn.get_test_data()
-        test_size = input(
-            "Do a quick test of 100 images(1), a medium test \
-                of 2 000 images(2) or a full test of 10 000 images(3): ")
+        input_directions = "Do a quick test of 100 images(1), " + \
+            "a medium test of 2 000 images(2) " +\
+            "or a full test of 10 000 images(3): "
 
-        if test_size == "1":
-            self._quick_test(100)
-        elif test_size == "2":
-            self._quick_test(2000)
-        elif test_size == "3":
-            self._full_test()
+        test_size = input(input_directions)
 
-    def _full_test(self):
-        """Perform in-depth test
-        for network accuracy.
-        """
-        class_accuracy = {}
-        for i in range(self.nn.num_of_classes):
-            class_accuracy[str(i)] = [0, 0]  # left is correct pred
+        test_sizes = {"1": 100, "2": 2_000, "3": 10_000}
 
-        result = 0
-        for num in range(len(self.test_images)):
-            prediction = self.nn.predict(self.test_images[num])
-            if prediction == self.test_labels[num]:
-                result += 1
-                class_accuracy[str(prediction)][0] += 1
-            class_accuracy[str(self.test_labels[num])][1] += 1
+        self._run_test(test_sizes[test_size])
 
-        print(f"Test accuracy: {(result / len(self.test_images))*100:.1f}%")
-
-        self.test_visualization(class_accuracy)
-
-    def _quick_test(self, size):
+    def _run_test(self, size):
         """Perform fast test for
         network accuracy.
         """
