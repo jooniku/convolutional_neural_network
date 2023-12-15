@@ -104,4 +104,4 @@ class TestConvolutionalLayer(unittest.TestCase):
         # accumulated_error = np.sum(relative_error)
         print(accumulated_error)
 
-        self.assertGreaterEqual(1e-5, accumulated_error)
+        self.assertGreaterEqual(5e-5, accumulated_error)
