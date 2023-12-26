@@ -6,7 +6,7 @@ I am continuing this project from period 1.
 ## Documentation
 - [Weekly report](https://github.com/jooniku/convolutional_neural_network/blob/main/Documentation/Weekly_reports/week_5.md)
 - [Requirement Specification](Documentation/requirement_specification.md)
-- [Testing document](Documentation/implementation_document.md)
+- [Testing document](Documentation/testing_document.md)
 - [Implementation document](Documentation/implementation_document.md)
 - [User Manual](Documentation/user_manual.md)
 
